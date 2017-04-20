@@ -96,8 +96,10 @@ io.sockets.on('connection', function (socket) {
 	});
 	//calls the gameRoom creator.
 	socket.on('game start', function(data) {
-		console.log("calling " + gameRooms.rooms[data].creator);
-		io.sockets.emit('call ' + gameRooms.rooms[data].creator, {roomIndex: data, visitor: gameRooms.rooms[data].visitor});
+		if (gameRooms.rooms[data].state == "playing") {
+			console.log("calling " + gameRooms.rooms[data].creator);
+			io.sockets.emit('call ' + gameRooms.rooms[data].creator, {roomIndex: data, visitor: gameRooms.rooms[data].visitor});
+		}
 	});
 	
 	//disconnect.
