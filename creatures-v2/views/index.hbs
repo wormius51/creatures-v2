@@ -1,0 +1,132 @@
+<h3 id = "info" style = "position: absolute; top: 120px; left: 560px; background-color: blue; color: white;">A game by Eyal Hazor</h3>
+<h3 id = "users" style = "position: absolute; top: 10px; left: 10px;background-color: blue; color: white;"></h3>
+<img src = "../images/buttons/title.bmp" style = "position: absolute; top: 30px; left: 450px;" />
+<div style="position: absolute; top: 170px; left: 40px; height: 450px; width: 1300px; background-color: lightblue;">
+<button id = "play" style = "position: absolute; left: 1100px; top: 200px;" >play</button>
+<button id = "spactate" style = "position: absolute; left: 1150px; top: 200px;" >spactate</button>
+<br />
+<a href = "/tutorial/0"><img src = "../images/buttons/tutorial.bmp" align = "right" /></a>
+<br /><br /><br /><br />
+<a href = "/createAgame"><img id = "createAgame" src = "../images/buttons/createagame.bmp" style = "height: 20%;" align = "right" /></a>
+<div id = "chatBox" style = "overflow: scroll; position: absolute; top: 10px; left: 20px; height: 400px; width: 300px; background-color: yellow;">
+<p id = "chat"></p>
+</div>
+<form id = "messageForm" align = "bottom" style = "position: absolute; top: 420px; left: 30px;">
+<input type = "text" name = "message" id = "message">
+<button type = "button" id = "sendButton">send</button>
+</form>
+
+<div id = "gameRoomsBox" style = "overflow-y: scroll; position: absolute; top: 10px; left: 370px; height: 420px; width: 700px; border-style: solid; border-color: purple;">
+<ul id = "gameRooms"></ul>
+</div>
+</div>
+<script type = "text/javascript" src = "/socket.io/socket.io.js"></script>
+
+<script type = "text/javascript">
+var chatBox = document.getElementById("chatBox");
+chatBox.scrollTop = chatBox.scrollHeight;
+var socket = io.connect();
+	
+	var message = document.getElementById("message");
+	var messageForm = document.getElementById("messageForm");
+	var chat = document.getElementById("chat");
+	var button = document.getElementById("sendButton");
+
+	button.addEventListener('click', function() {
+		socket.emit('send message', "{{name}}: " + message.value);
+		console.log(message.value);
+		message.value = "";
+	});
+	
+	socket.on('new message', function(data) {
+		var newLine = document.createTextNode(data.msg);
+		chat.appendChild(newLine);
+		var br = document.createElement("BR");
+		chat.appendChild(br);
+	});
+	
+	var spactate = false;
+	
+	var playButton = document.getElementById("play");
+	var spactateButton = document.getElementById("spactate");
+	
+	playButton.addEventListener('click', function () {
+		spactate = false;
+		socket.emit('update me');
+	});
+	
+	spactateButton.addEventListener('click', function () {
+		spactate = true;
+		socket.emit('update me');
+	});
+	
+	var gameRooms = document.getElementById("gameRooms");
+	
+	socket.on('update', function(data) {
+		document.getElementById("users").innerText = data.connections + " users";
+		gameRooms.innerHTML = "";
+		for (i=0;i<data.gameRooms.length;i++) {
+			var roomTitleAndState = data.gameRooms[i].split(",");
+			if (roomTitleAndState[1] != "done" && ((roomTitleAndState[1] == "waiting" && !spactate) || (roomTitleAndState[1] == "playing" && spactate))) {
+				var gameRoom = document.createElement("DIV");
+				gameRoom.style.height = "20px";
+				gameRoom.style.width = "600px";
+				gameRoom.style.backgroundColor = "blue";
+				gameRoom.style.borderStyle = "solid";
+				gameRoom.style.borderColor = "purple";
+				gameRoom.style.color = "white";
+				gameRoom.innerText = roomTitleAndState[0];
+				var joinRoomLink = document.createElement("A");
+				if (roomTitleAndState[1] == "waiting") {
+					joinRoomLink.href = "/joinGame/" + i;
+				}else{
+					joinRoomLink.href = "/game_room/" + i;
+				}
+				joinRoomLink.appendChild(gameRoom);
+				var listItem = document.createElement("LI");
+				listItem.appendChild(joinRoomLink);
+				gameRooms.appendChild(listItem);
+			}
+		}
+	});
+	update();
+	var Interval = setInterval(update,5000);
+	
+	function update() {
+		socket.emit('update me');
+	}
+	
+	socket.on('call {{name}}', function (data) {
+		console.log(data);
+		var link = document.createElement("A");
+		link.href = "/game_room/" + data.roomIndex;
+		var div = document.createElement("DIV");
+		var header = document.createElement("h2");
+		header.innerText = "Your game vs " + data.visitor + " has started. Click here to join.";
+		div.appendChild(header);
+		div.style.backgroundColor = "blue";
+		div.style.borderStyle = "solid";
+		div.style.borderColor = "purple";
+		div.style.height = "70px";
+		div.style.width = "270px";
+		div.style.position = "absolute";
+		link.appendChild(div);
+		document.body.appendChild(link);
+	});
+</script>
+
+<div id = "userBox" style="position: absolute; top: 30px; left: 1040px; height: 100px; width: 300px; background-color: lightblue;">
+<form action = "/login" method = "post">
+<input type = "text" name = "userName" />
+<input type = "password" name = "password" />
+<button type = "submit">login</button>
+</from>
+<a href = "/register"><button type = "button" >register</button></a>
+</div>
+
+<script type = "text/javascript">
+if("{{name}}" != "anonymius") {
+	var userBox = document.getElementById("userBox");
+	userBox.innerHTML = "<h1>{{name}}</h1><a href = '/logout'><button>logout</button></a>";
+}
+</script>

@@ -1,0 +1,248 @@
+<div id = "board" style = "position: absolute; top: 20px; left: 300px; height: 600px; width: 600px; background-color: white; border-color: black; border-style: solid;">
+</div>
+<div id = "bluePlayer" style = "position: absolute; top: 310px; left: 1000px; height: 200px; width: 150px; background-color: lightblue; border-style: none; border-color: green;">
+<h1>{{bluePlayer}} {{bluePlayerRating}}</h1>
+<h3 id = "blueClock"></h3>
+</div>
+<div id = "redPlayer" style = "position: absolute; top: 20px; left: 1000px; height: 200px; width: 150px; background-color: pink; border-style none; border-color: green;">
+<h1>{{redPlayer}} {{redPlayerRating}}</h1>
+<h3 id = "redClock"></h3>
+</div>
+<a href = "/"><image src = "../images/buttons/menu.bmp" style = "position: absolute;" ></a>
+<button id = "resign" style = "position: absolute; top: 150px;">resign</button>
+
+<script type = "text/javascript" src = "/socket.io/socket.io.js"></script>
+<script type = "text/javascript" src = "../javascripts/partical.js"></script>
+<script type = "text/javascript" src = "../javascripts/board.js"></script>
+<script type = "text/javascript" src = "../javascripts/clock.js"></script>
+
+<script type = "text/javascript">
+blueClock.draw();
+redClock.draw();
+	if ({{player}} == 2) {
+		var blueDiv = document.getElementById("bluePlayer");
+		var redDiv = document.getElementById("redPlayer");
+		blueDiv.style.top = "20px";
+		redDiv.style.top = "310px";
+	}
+	var socket = io.connect();
+	var roomIndex = {{index}};
+	if ({{player}} == 2) {
+		board.isFliped = true;
+	}
+	board.set();
+	board.draw();
+	
+	for (y=0;y<board.size;y++) {
+		for (x=0;x<board.size;x++) {
+			var index = x + "x" + y;
+			var partical = document.getElementById(index);
+			partical.addEventListener('click', function () {
+				socket.emit('select', {roomIndex: {{index}}, name: "{{me}}", particalIndex: this.id});
+				socket.emit('roomEnter', {{index}});
+			});
+		}
+	}
+	document.getElementById("resign").addEventListener('click', function () {
+		socket.emit('resign', {roomIndex: {{index}}, name: "{{me}}"});
+	});
+	
+	document.getElementById("resign").addEventListener('mouseout', function () {
+		socket.emit('roomEnter', {{index}});
+	});
+	
+	socket.on('changes!' ,function (data) {
+	var blueTime = data.blueTime.split(",");
+	var redTime = data.redTime.split(",");
+	blueClock.hours = blueTime[0];
+	blueClock.minuts = blueTime[1];
+	blueClock.seconds = blueTime[2];
+	blueClock.centiseconds = blueTime[3];
+	redClock.hours = redTime[0];
+	redClock.minuts = redTime[1];
+	redClock.seconds = redTime[2];
+	redClock.centiseconds = redTime[3];
+	blueClock.draw();
+	redClock.draw();
+	var blueDiv = document.getElementById("bluePlayer");
+	var redDiv = document.getElementById("redPlayer");
+	if (data.turn == "blue") {
+		blueDiv.style.borderStyle = "solid";
+		redDiv.style.borderStyle = "none";
+		if (redClock.isOn) {
+			redClock.stop();
+		}
+		if (!blueClock.isOn && data.turnNumber > 0) {
+			blueClock.start();
+		}
+	}else {
+		blueDiv.style.borderStyle = "none";
+		redDiv.style.borderStyle = "solid";
+		if (blueClock.isOn) {
+			blueClock.stop();
+		}
+		if (!redClock.isOn) {
+			redClock.start();
+		}
+	}
+	var changes = data.changes.split(",");
+	
+		for (i=0;i<changes.length;i++) {
+			var indexAndData = changes[i].split("=");
+			if (indexAndData.length < 2) {
+				break;
+			}
+			var index = indexAndData[0];
+			var particalData = indexAndData[1].split("");
+			switch (particalData[0]) {
+				case "y":
+				board.particals[index].selected = "yes";
+				break;
+				case "n":
+				board.particals[index].selected = "no";
+				break;
+				case "c":
+				board.particals[index].selected = "child";
+				break;
+			}
+			switch (particalData[1]) {
+				case "b":
+				board.particals[index].team = "blue";
+				break;
+				case "r":
+				board.particals[index].team = "red";
+				break;
+				case "p":
+				board.particals[index].team = "purple";
+				break;
+				default:
+				board.particals[index].team = "black";
+			}
+			switch (particalData[2]) {
+				case "u":
+				board.particals[index].vertical = "up";
+				break;
+				case "d":
+				board.particals[index].vertical = "down";
+				break;
+			}
+			switch (particalData[3]) {
+				case "l":
+				board.particals[index].horizontal = "left";
+				break;
+				case "r":
+				board.particals[index].horizontal = "right";
+				break;
+			}
+			board.particals[index].adjust();
+		}
+		board.adjust();
+	});
+	
+	socket.on('position!' ,function (data) {
+		console.log(data.position);
+		var currntPosition = data.position.split(",");
+	
+		for (i=0;i<currntPosition.length;i++) {
+			var indexAndData = currntPosition[i].split("=");
+			if (indexAndData.length < 2) {
+				break;
+			}
+			var index = indexAndData[0];
+			var particalData = indexAndData[1].split("");
+			switch (particalData[0]) {
+				case "y":
+				board.particals[index].selected = "yes";
+				break;
+				case "n":
+				board.particals[index].selected = "no";
+				break;
+				case "c":
+				board.particals[index].selected = "child";
+				break;
+			}
+			switch (particalData[1]) {
+				case "b":
+				board.particals[index].team = "blue";
+				break;
+				case "r":
+				board.particals[index].team = "red";
+				break;
+				case "p":
+				board.particals[index].team = "purple";
+				break;
+				default:
+				board.particals[index].team = "black";
+			}
+			switch (particalData[2]) {
+				case "u":
+				board.particals[index].vertical = "up";
+				break;
+				case "d":
+				board.particals[index].vertical = "down";
+				break;
+			}
+			switch (particalData[3]) {
+				case "l":
+				board.particals[index].horizontal = "left";
+				break;
+				case "r":
+				board.particals[index].horizontal = "right";
+				break;
+			}
+			board.particals[index].adjust();
+		}
+		board.adjust();
+	});
+	
+	socket.on('changes cumputing', function () {
+		socket.emit('changes?');
+	});
+	socket.on('move{{index}}', function (data) {
+		socket.emit('changes?' ,roomIndex);
+	});
+	
+	var blueBox = document.getElementById("bluePlayer");
+	var redBox = document.getElementById("redPlayer");
+	var br = document.createElement("BR");
+	var win = document.createElement("H2");
+	var lose = document.createElement("H2");
+	var drawB = document.createElement("H2");
+	var drawR = document.createElement("H2");
+	win.innerText = "WIN";
+	lose.innerText = "LOSE";
+	drawB.innerText = "DRAW";
+	drawR.innerText = "DRAW";
+	
+	socket.on('game done {{index}}' , function (data) {
+		
+			switch (data) {
+				case "blue wins":
+					blueBox.appendChild(br);
+					blueBox.appendChild(win);
+					redBox.appendChild(br);
+					redBox.appendChild(lose);
+				break;
+				case "red wins":
+					blueBox.appendChild(br);
+					blueBox.appendChild(lose);
+					redBox.appendChild(br);
+					redBox.appendChild(win);
+				break;
+				case "draw":
+					blueBox.appendChild(br);
+					blueBox.appendChild(drawB);
+					redBox.appendChild(br);
+					redBox.appendChild(drawR);
+			}
+			clearInterval(blueClock.interval);
+			clearInterval(redClock.interval);
+	});
+	
+	socket.emit('changes?', roomIndex);
+	var interval = setInterval(changes, 5000);
+	function changes() {
+		socket.emit('changes?', roomIndex);
+	}
+	socket.emit('game start', roomIndex);
+</script>
