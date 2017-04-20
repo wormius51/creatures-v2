@@ -1,0 +1,176 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('creatures-v2:server');
+var http = require('http');
+
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '8888');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Create socket.io connection.
+ */
+var gameRooms = require('../public/javascripts/gameRooms');
+var io = require('socket.io').listen(server);
+var users = [];
+var connections = [];
+//client connect.
+io.sockets.on('connection', function (socket) {
+	connections.push(socket);
+	console.log("connected: %s sockets connected.", connections.length);
+	
+	//send message.
+	socket.on('send message', function(data) {
+		io.sockets.emit('new message', {msg: data});
+		console.log("emiting message: " + data);
+	});
+	
+	//new game room.
+	socket.on('update me', function() {
+		this.emit('update', {gameRooms: gameRooms.display, connections: connections.length});
+		console.log("emiting update");
+	});
+	
+	//emits the position of the board.
+	socket.on('position?', function(data) {
+		gameRooms.rooms[data].gameMaster.getPosition();
+		console.log(gameRooms.rooms[data].gameMaster.currentPosition);
+		console.log("room index:" + data);
+		this.emit('position!', {position: gameRooms.rooms[data].gameMaster.currentPosition});
+	});
+	
+	//send board changes to client.
+	socket.on('changes?', function(data) {
+		if (gameRooms.rooms[data]) {
+			if (gameRooms.rooms[data].gameMaster.isComputing) {
+				this.emit('changes computing');
+			}else{
+				gameRooms.checkIfDone(data);
+				var turn = "red";
+				if (gameRooms.rooms[data].gameMaster.isBlueTurn) {
+					turn = "blue";
+				}
+				this.emit('changes!', {changes: gameRooms.rooms[data].gameMaster.changes, turn: turn, blueTime: gameRooms.rooms[data].gameMaster.blueClock.hours + "," + gameRooms.rooms[data].gameMaster.blueClock.minuts + "," + gameRooms.rooms[data].gameMaster.blueClock.seconds + "," + gameRooms.rooms[data].gameMaster.blueClock.centiseconds, redTime: gameRooms.rooms[data].gameMaster.redClock.hours + "," + gameRooms.rooms[data].gameMaster.redClock.minuts + "," + gameRooms.rooms[data].gameMaster.redClock.seconds + "," + gameRooms.rooms[data].gameMaster.redClock.centiseconds, turnNumber: gameRooms.rooms[data].gameMaster.turnNumber});
+				console.log("gameMaster number: " + gameRooms.rooms[data].gameMaster.counter);
+				if (gameRooms.rooms[data].state == "done") {
+					this.emit('game done ' + data, gameRooms.rooms[data].gameMaster.result);
+				}
+			}
+		}
+	});
+	//resives room number, not the move.
+	socket.on('roomEnter', function(data) {
+		
+		io.sockets.emit('move' + data);
+	});
+	//resives a request for a select and sends it to the game room.
+	socket.on('select', function(data) {
+		gameRooms.select(data.roomIndex, data.name, data.particalIndex);
+	});
+	//resings a game.
+	socket.on('resign', function(data) {
+		console.log("resign request at game: " + data.roomIndex + " by " + data.name);
+		if (data.name == gameRooms.rooms[data.roomIndex].bluePlayer) {
+			gameRooms.rooms[data.roomIndex].gameMaster.resign("blue");
+		}
+		if (data.name == gameRooms.rooms[data.roomIndex].redPlayer) {
+			gameRooms.rooms[data.roomIndex].gameMaster.resign("red");
+		}
+		//io.sockets.emit('move' + data.roomIndex);
+		io.sockets.emit('game done ' + data.roomIndex, gameRooms.rooms[data.roomIndex].gameMaster.result);
+	});
+	//calls the gameRoom creator.
+	socket.on('game start', function(data) {
+		console.log("calling " + gameRooms.rooms[data].creator);
+		io.sockets.emit('call ' + gameRooms.rooms[data].creator, {roomIndex: data, visitor: gameRooms.rooms[data].visitor});
+	});
+	
+	//disconnect.
+	socket.on('disconnect', function (data) {
+		connections.splice(connections.indexOf(socket), 1);
+		console.log("disconnected: %s sockets connected.", connections.length);
+	});
+});
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
