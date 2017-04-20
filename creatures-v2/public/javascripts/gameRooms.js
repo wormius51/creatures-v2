@@ -52,7 +52,7 @@ function join(visitor, visitorRating, index) {
 
 function end(index) {
 	var gr = gameRooms[index];
-	if (gr.bluePlayer != gr.redPlayer) {
+	if (gr.bluePlayer != gr.redPlayer && gr.state == "playing") {
 		userUpdate.ratingChange(gr.bluePlayer, gr.bluePlayerRating, gr.redPlayer, gr.redPlayerRating, gr.gameMaster.result);
 	}
 	gr.state = "done";
