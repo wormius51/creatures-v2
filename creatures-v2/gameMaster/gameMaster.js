@@ -26,6 +26,7 @@ var gameMaster = {
 	redClock: clockFactory(),
 	result: "playing",
 	interval: interval = 0,
+	timeControll: "0:12:0+0:3",
 	
 	//set the gameMaster.board. for two players.
 	set: function() {
@@ -36,14 +37,48 @@ var gameMaster = {
 		gameMaster.isBlueTurn = true;
 		
 		gameMaster.board.set();
-		gameMaster.board.setPosition(gameMaster.position);
-		
+		gameMaster.setDefultPosition();
+		gameMaster.iboard.size = gameMaster.board.size;
 		gameMaster.iboard.set();
+		var timeAndIncrament = gameMaster.timeControll.split("+");
+		var timeArray = timeAndIncrament[0];
+		var incramentArray = timeAndIncrament[1];
+		var time = timeArray.split(":");
+		var incrament = incramentArray.split(":");
+		gameMaster.blueClock.hours = time[0] * 1;
+		gameMaster.blueClock.minuts = time[1] * 1;
+		gameMaster.blueClock.seconds = time[2] * 1;
+		gameMaster.blueClock.minutsIncrament = incrament[0] * 1;
+		gameMaster.blueClock.secondsIncrament = incrament[1] * 1;
+		
+		gameMaster.redClock.hours = time[0] * 1;
+		gameMaster.redClock.minuts = time[1] * 1;
+		gameMaster.redClock.seconds = time[2] * 1;
+		gameMaster.redClock.minutsIncrament = incrament[0] * 1;
+		gameMaster.redClock.secondsIncrament = incrament[1] * 1;
+		
+		//console.log(minuts + " " + seconds + " " + timeAndIncrament[0]);
 		
 		gameMaster.buildCreatures();
 		gameMaster.updateAll();
 		gameMaster.isComputing = false;
 		gameMaster.interval = setInterval(gameMaster.checkTime, 100);
+	},
+	
+	setDefultPosition: function () {
+		console.log("seting position");
+		var n = gameMaster.board.size;
+		gameMaster.board.setPosition([
+			(n / 2 - 5) + "x" + 1 + "=" + "ul",
+			(n / 2 - 5) + "x" + (n - 2) + "=" + "dl",
+			(n / 2 + 4) + "x" + 1 + "=" + "ur",
+			(n / 2 + 4) + "x" + (n - 2) + "=" + "dr",
+			(n / 2 - 6) + "x" + 1 + "=" + "ur",
+			(n / 2 - 6) + "x" + (n - 2) + "=" + "dr",
+			(n / 2 + 5) + "x" + 1 + "=" + "ul",
+			(n / 2 + 5) + "x" + (n - 2) + "=" + "dl"]
+		);
+		//gameMaster.board.setPosition(gameMaster.position);
 	},
 	
 	checkTime: function () {

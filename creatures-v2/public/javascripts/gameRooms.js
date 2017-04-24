@@ -15,17 +15,20 @@ function gameRoom(creator, creatorRating, boardSize, timeControll) {
 	this.redPlayer = "";
 	this.redPlayerRating = 0;
 	this.gameMaster = gameMaster();
+	this.gameMaster.timeControll = timeControll;
+	this.gameMaster.board.size = this.boardSize;
 }
 
 var gameRooms = new Array();
 var display = new Array();
-
+var counter = -1;
 
 //insert a new game room.
 function insert(creator, creatorRating, boardSize, timeControll) {
+	counter++;
 	var gr = new gameRoom(creator, creatorRating, boardSize, timeControll);
 	gameRooms.push(gr);
-	display.push(creator + " " + creatorRating + " " + boardSize + " " + timeControll + ",waiting");
+	display.push(creator + " " + creatorRating + " " + boardSize + " " + timeControll + ",waiting," + counter);
 }
 //join the game.
 function join(visitor, visitorRating, index) {
@@ -47,7 +50,15 @@ function join(visitor, visitorRating, index) {
 	console.log(gr.bluePlayer + " " + gr.bluePlayerRating + " " + gr.redPlayer + " " + gr.redPlayerRating);
 	gr.gameMaster.set();
 	gr.state = "playing";
-	display[index] = gr.bluePlayer + " vs " + gr.redPlayer + ",playing";
+	var displayIndex = 0;
+	for (i=0;i<display.length;i++) {
+		var roomIndex = display[i].split(",")[2];
+		if (roomIndex == index) {
+			displayIndex = i;
+			break;
+		}
+	}
+	display[displayIndex] = gr.bluePlayer + " vs " + gr.redPlayer + ",playing," + index;
 }
 
 function end(index) {
@@ -57,7 +68,8 @@ function end(index) {
 	}
 	gr.state = "done";
 	gr.endHandled = true;
-	display[index] = gr.bluePlayer + " vs " + gr.redPlayer + ",done";
+	//display[index] = gr.bluePlayer + " vs " + gr.redPlayer + ",done," + index;
+	display.splice(index,1);
 }
 
 function checkIfDone (index) {

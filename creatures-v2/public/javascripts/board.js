@@ -1,8 +1,8 @@
 //holds the information on the game board.
 var board = {
 	isFliped: false,
-	xpos: xpos = 5,
-	ypos: ypos = 5,
+	xpos: xpos = 10,
+	ypos: ypos = 10,
 	size: size = 14,
 	height: height = 580,
 	particals: particals = new Array(),

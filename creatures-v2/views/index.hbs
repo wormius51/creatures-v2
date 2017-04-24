@@ -1,13 +1,13 @@
-<h3 id = "info" style = "position: absolute; top: 120px; left: 560px; background-color: blue; color: white;">A game by Eyal Hazor</h3>
+<h3 id = "info" style = "position: absolute; top: 120px; left: 530px; background-color: blue; color: white;">A game by Eyal Hazor (wormius51)</h3>
 <h3 id = "users" style = "position: absolute; top: 10px; left: 10px;background-color: blue; color: white;"></h3>
 <img src = "../images/buttons/title.bmp" style = "position: absolute; top: 30px; left: 450px;" />
 <div style="position: absolute; top: 170px; left: 40px; height: 450px; width: 1300px; background-color: lightblue;">
 <button id = "play" style = "position: absolute; left: 1100px; top: 200px;" >play</button>
-<button id = "spactate" style = "position: absolute; left: 1150px; top: 200px;" >spactate</button>
+<button id = "spactate" style = "position: absolute; left: 1150px; top: 200px;" >games in progress</button>
 <br />
 <a href = "/tutorial/0"><img src = "../images/buttons/tutorial.bmp" align = "right" /></a>
 <br /><br /><br /><br />
-<a href = "/createAgame"><img id = "createAgame" src = "../images/buttons/createagame.bmp" style = "height: 20%;" align = "right" /></a>
+<img id = "createAgame" src = "../images/buttons/createagame.bmp" style = "height: 20%;" align = "right" />
 <div id = "chatBox" style = "overflow: scroll; position: absolute; top: 10px; left: 20px; height: 400px; width: 300px; background-color: yellow;">
 <p id = "chat"></p>
 </div>
@@ -78,9 +78,9 @@ var socket = io.connect();
 				gameRoom.innerText = roomTitleAndState[0];
 				var joinRoomLink = document.createElement("A");
 				if (roomTitleAndState[1] == "waiting") {
-					joinRoomLink.href = "/joinGame/" + i;
+					joinRoomLink.href = "/joinGame/" + roomTitleAndState[2];
 				}else{
-					joinRoomLink.href = "/game_room/" + i;
+					joinRoomLink.href = "/game_room/" + roomTitleAndState[2];
 				}
 				joinRoomLink.appendChild(gameRoom);
 				var listItem = document.createElement("LI");
@@ -113,9 +113,84 @@ var socket = io.connect();
 		link.appendChild(div);
 		document.body.appendChild(link);
 	});
+	
+	var createAgame = document.getElementById("createAgame");
+	createAgame.addEventListener('click', function () {
+		createMenu();
+	});
+	
+	function createMenu() {
+		var div = document.createElement("DIV");
+		div.innerHTML = "<a href = '/'><button>close</button></a><br /><form id = 'gameSettings' action = '/createAgame' method = 'post'></form>";
+		document.body.appendChild(div);
+		var form = document.getElementById("gameSettings");
+		var br = document.createElement("BR");
+		/*var time = document.createElement("H5");
+		time.innerText = "time";
+		var incrament = document.createElement("H5");
+		incrament.innerText = "incrament";
+		var hoursText = document.createElement("H5");
+		hoursText.innerText = "hours";
+		var minutsText = document.createElement("H5");
+		minutsText.innerText = "minutes";
+		var secondsText = document.createElement("H5");
+		secondsText.innerText = "seconds";*/
+		var submitButton = document.createElement("BUTTON");
+		submitButton.type = "submit";
+		submitButton.innerText = "create game";
+		var boardSize = document.createElement("INPUT");
+		var hours = document.createElement("INPUT");
+		var minuts = document.createElement("INPUT");
+		var seconds = document.createElement("INPUT");
+		var hoursIncrament = document.createElement("INPUT");
+		var minutsIncrament = document.createElement("INPUT");
+		var secondsIncrament = document.createElement("INPUT");
+		boardSize.type = "text";
+		boardSize.name = "boardSize";
+		boardSize.value = "board size";
+		hours.type = "text";
+		hours.name = "hours";
+		hours.value = "hours";
+		minuts.type = "text";
+		minuts.name = "minuts";
+		minuts.value = "minutes";
+		seconds.name = "seconds";
+		seconds.type = "text";
+		seconds.value = "seconds";
+		hoursIncrament.type = "text";
+		hoursIncrament.name = "hours incrament";
+		hoursIncrament.value = "hours increment";
+		minutsIncrament.type = "text";
+		minutsIncrament.name = "minutsIncrament";
+		minutsIncrament.value = "minutes increment";
+		secondsIncrament.name = "secondsIncrament";
+		secondsIncrament.type = "text";
+		secondsIncrament.value = "seconds increment";
+		//hours.style.position= "absolute";
+		form.appendChild(boardSize);
+		//form.appendChild(time);
+		//form.appendChild(incrament);
+		//form.appendChild(hoursText);
+		form.appendChild(hours);
+		form.appendChild(minuts);
+		form.appendChild(minutsIncrament);
+		form.appendChild(seconds);
+		form.appendChild(secondsIncrament);
+		form.appendChild(submitButton);
+		div.style.position = "absolute";
+		div.style.top = "210px";
+		div.style.left = "500px";
+		div.style.height = "200px";
+		div.style.width = "400px";
+		div.style.borderStyle = "solid";
+		div.style.borderColor = "purple";
+		div.style.backgroundColor = "lightblue";
+		
+	}
 </script>
 
 <div id = "userBox" style="position: absolute; top: 30px; left: 1040px; height: 100px; width: 300px; background-color: lightblue;">
+{{message}}
 <form action = "/login" method = "post">
 <input type = "text" name = "userName" />
 <input type = "password" name = "password" />

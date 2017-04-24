@@ -21,9 +21,9 @@ router.get('/:index', function(req, res, next) {
 	console.log(bluePlayer + " " + bluePlayerRating + " " + redPlayer + " " + redPlayerRating);
 	gameRooms.rooms[req.params.index].gameMaster.getPosition();
 	if (req.session.user) {
-		res.render('gameRoom',{ title: bluePlayer + " vs " + redPlayer, me: req.session.user.userName, bluePlayer: bluePlayer, bluePlayerRating: bluePlayerRating, redPlayer: redPlayer, redPlayerRating: redPlayerRating, player: player, index: req.params.index , position: gameRooms.rooms[req.params.index].gameMaster.currentPosition});
+		res.render('gameRoom',{ title: bluePlayer + " vs " + redPlayer, me: req.session.user.userName, bluePlayer: bluePlayer, bluePlayerRating: bluePlayerRating, redPlayer: redPlayer, redPlayerRating: redPlayerRating, player: player, index: req.params.index , position: gameRooms.rooms[req.params.index].gameMaster.currentPosition, boardSize: gameRooms.rooms[req.params.index].gameMaster.board.size});
 	}else {
-			res.render('gameRoom',{ title: bluePlayer + " vs " + redPlayer, me: "Anonnymius", bluePlayer: bluePlayer, bluePlayerRating: bluePlayerRating, redPlayer: redPlayer, redPlayerRating: redPlayerRating, player: player, index: req.params.index , position: gameRooms.rooms[req.params.index].gameMaster.currentPosition});
+		res.render('gameRoom',{ title: bluePlayer + " vs " + redPlayer, me: "Anonnymius", bluePlayer: bluePlayer, bluePlayerRating: bluePlayerRating, redPlayer: redPlayer, redPlayerRating: redPlayerRating, player: player, index: req.params.index , position: gameRooms.rooms[req.params.index].gameMaster.currentPosition, boardSize: gameRooms.rooms[req.params.index].gameMaster.board.size});
 	}
 });
 /*

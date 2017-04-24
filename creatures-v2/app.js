@@ -25,7 +25,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(session({secret: "shxnckgfuflb5779-dhb", resave: false, saveUninitialized: true}));
+app.use(session({secret: "ידכיר'0000239ףגףף,,גכק", resave: false, saveUninitialized: true}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
