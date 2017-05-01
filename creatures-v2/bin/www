@@ -57,18 +57,22 @@ io.sockets.on('connection', function (socket) {
 	//send board changes to client.
 	socket.on('changes?', function(data) {
 		if (gameRooms.rooms[data]) {
-			if (gameRooms.rooms[data].gameMaster.isComputing) {
+			var gm = gameRooms.rooms[data].gameMaster;
+			if (gm.isComputing) {
 				this.emit('changes computing');
 			}else{
 				gameRooms.checkIfDone(data);
 				var turn = "red";
-				if (gameRooms.rooms[data].gameMaster.isBlueTurn) {
+				if (gm.isBlueTurn) {
 					turn = "blue";
 				}
-				this.emit('changes!', {changes: gameRooms.rooms[data].gameMaster.changes, turn: turn, blueTime: gameRooms.rooms[data].gameMaster.blueClock.hours + "," + gameRooms.rooms[data].gameMaster.blueClock.minuts + "," + gameRooms.rooms[data].gameMaster.blueClock.seconds + "," + gameRooms.rooms[data].gameMaster.blueClock.centiseconds, redTime: gameRooms.rooms[data].gameMaster.redClock.hours + "," + gameRooms.rooms[data].gameMaster.redClock.minuts + "," + gameRooms.rooms[data].gameMaster.redClock.seconds + "," + gameRooms.rooms[data].gameMaster.redClock.centiseconds, turnNumber: gameRooms.rooms[data].gameMaster.turnNumber});
-				console.log("gameMaster number: " + gameRooms.rooms[data].gameMaster.counter);
+				this.emit('changes!', {changes: gm.changes, turn: turn, 
+				blueTime: gm.blueClock.hours + "," + gm.blueClock.minuts + "," + gm.blueClock.seconds + "," + gm.blueClock.centiseconds, 
+				redTime: gm.redClock.hours + "," + gm.redClock.minuts + "," + gm.redClock.seconds + "," + gm.redClock.centiseconds, 
+				turnNumber: gm.turnNumber, PGN: gm.PGN});
+				console.log("gameMaster number: " + gm.counter);
 				if (gameRooms.rooms[data].state == "done") {
-					this.emit('game done ' + data, gameRooms.rooms[data].gameMaster.result);
+					this.emit('game done ' + data, gm.result);
 				}
 			}
 		}
