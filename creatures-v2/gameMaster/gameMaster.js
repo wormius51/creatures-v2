@@ -64,6 +64,28 @@ var gameMaster = {
 		gameMaster.isComputing = false;
 		gameMaster.interval = setInterval(gameMaster.checkTime, 100);
 	},
+	// adds a move to the pgn.
+	addPGN: function addPGN(index, selected) {
+		switch (selected) {
+			case "yes":
+				this.firstSelect = "";
+				this.secondSelect = "";
+			break;
+			case "no":
+				this.firstSelect = index;
+			break;
+			case "child":
+			if (this.firstSelect) {
+				this.secondSelect = index;
+				if (gameMaster.isBlueTurn) {
+					gameMaster.PGN = gameMaster.PGN + "." + gameMaster.turnNumber + " " + this.firstSelect + " -> " + this.secondSelect;
+				}else {
+					gameMaster.PGN = gameMaster.PGN + " , " + this.firstSelect + " -> " + this.secondSelect + "<br />";
+				}
+			}
+		}
+		console.log(gameMaster.PGN);
+	},
 	
 	setDefultPosition: function () {
 		console.log("seting position");
@@ -247,12 +269,12 @@ var gameMaster = {
 	select: function select(index) {
 		if (gameMaster.result == "playing") {
 			gameMaster.isComputing = true;
-			
 			console.log("select at gameMaster: " + gameMaster.counter);
 			var xselect = gameMaster.board.particals[index].x;
 			var yselect = gameMaster.board.particals[index].y;
 			
 			if (gameMaster.board.particals[index].team == "purple" || (gameMaster.isBlueTurn && gameMaster.board.particals[index].team == "blue") || (!gameMaster.isBlueTurn && gameMaster.board.particals[index].team == "red")) {
+				gameMaster.addPGN(index, gameMaster.board.particals[index].selected);
 				if (gameMaster.board.particals[index].selected == "yes") {
 					gameMaster.inSelection = false;
 					for (y=0;y<gameMaster.board.size;y++){
@@ -273,6 +295,7 @@ var gameMaster = {
 							gameMaster.redClock.stop();
 							gameMaster.blueClock.start();
 							gameMaster.isBlueTurn = true;
+							gameMaster.turnNumber++;
 						}
 						for (y=0;y<gameMaster.board.size;y++){
 							for (x=0;x<gameMaster.board.size;x++){
@@ -315,7 +338,7 @@ var gameMaster = {
 							}
 						}
 						gameMaster.buildCreatures();
-						gameMaster.turnNumber++;
+						
 						console.log("turnNumber: " + gameMaster.turnNumber);
 						console.log("gameMaster.board. number: " + gameMaster.board.counter);
 					}else{
