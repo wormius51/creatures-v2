@@ -13,7 +13,7 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '8888');
+var port = normalizePort(process.env.PORT || '80');
 app.set('port', port);
 
 /**
@@ -23,21 +23,74 @@ app.set('port', port);
 var server = http.createServer(app);
 
 /**
+ * uses stst tracker.
+ */
+ var statistics = require('../statistics/statistics');
+
+/**
  * Create socket.io connection.
  */
 var gameRooms = require('../public/javascripts/gameRooms');
 var io = require('socket.io').listen(server);
 var users = [];
 var connections = [];
+
+var io = require("socket.io")(server),
+  session = require("express-session")({
+    secret: "j;jKlhיךדכשםכ90732יךגhld@k==fooעעגלשףףה,ב\ז",
+    resave: true,
+    saveUninitialized: true
+  }),
+  sharedsession = require("express-socket.io-session");
+
+
+// Attach session
+app.use(session);
+
+// Share session with io sockets
+
+io.use(sharedsession(session));
+
+var user = require('../routes/users');
+
 //client connect.
 io.sockets.on('connection', function (socket) {
 	connections.push(socket);
 	console.log("connected: %s sockets connected.", connections.length);
 	
+	// Accept a login event with user's data
+    socket.on("login", function(userdata) {
+		var userName = userdata.userName;
+		var password = userdata.password;
+		
+		
+		user.findOne({userName: userName, password: password}, function(err, user) {
+			if (err) {
+				console.log(err);
+			}
+			
+			if (user) {
+				socket.handshake.session.userName = userdata.userName;
+				socket.handshake.session.save();
+				console.log("login: " + userName);
+			} else {
+				socket.handshake.session.userName = "anonymius";
+				socket.handshake.session.save();
+				console.log("anonymius");
+			}
+		});
+    });
+    /*socket.on("logout", function(userdata) {
+        if (socket.handshake.session.userdata) {
+            delete socket.handshake.session.userName;
+            socket.handshake.session.save();
+        }
+    }); */ 
+	
 	//send message.
 	socket.on('send message', function(data) {
-		io.sockets.emit('new message', {msg: data});
-		console.log("emiting message: " + data);
+		io.sockets.emit('new message', {msg: socket.handshake.session.userName + ": " + data});
+		console.log("emiting message: " + socket.handshake.session.userName + ": " + data);
 	});
 	
 	//new game room.
@@ -73,6 +126,7 @@ io.sockets.on('connection', function (socket) {
 				console.log("gameMaster number: " + gm.counter);
 				if (gameRooms.rooms[data].state == "done") {
 					this.emit('game done ' + data, gm.result);
+					statistics.insert({type: "gameResult", value: gm.result});
 				}
 			}
 		}
@@ -84,15 +138,15 @@ io.sockets.on('connection', function (socket) {
 	});
 	//resives a request for a select and sends it to the game room.
 	socket.on('select', function(data) {
-		gameRooms.select(data.roomIndex, data.name, data.particalIndex);
+		gameRooms.select(data.roomIndex, socket.handshake.session.userName, data.particalIndex);
 	});
 	//resings a game.
 	socket.on('resign', function(data) {
-		console.log("resign request at game: " + data.roomIndex + " by " + data.name);
-		if (data.name == gameRooms.rooms[data.roomIndex].bluePlayer) {
+		console.log("resign request at game: " + data.roomIndex + " by " + socket.handshake.session.userName);
+		if (socket.handshake.session.userName == gameRooms.rooms[data.roomIndex].bluePlayer) {
 			gameRooms.rooms[data.roomIndex].gameMaster.resign("blue");
 		}
-		if (data.name == gameRooms.rooms[data.roomIndex].redPlayer) {
+		if (socket.handshake.session.userName == gameRooms.rooms[data.roomIndex].redPlayer) {
 			gameRooms.rooms[data.roomIndex].gameMaster.resign("red");
 		}
 		//io.sockets.emit('move' + data.roomIndex);
