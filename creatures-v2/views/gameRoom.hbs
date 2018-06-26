@@ -1,22 +1,33 @@
-<div id = "board" style = "position: absolute; top: 20px; left: 300px; height: 600px; width: 600px; background-color: white; border-color: black; border-style: solid;">
+<div id = "board" style = "position: absolute; top: 20px; left: 300px; width: 600px; height: 600px; background-color: gray; border-color: black; border-style: solid;">
 </div>
-<div id = "bluePlayer" style = "position: absolute; top: 310px; left: 1000px; height: 200px; width: 150px; background-color: lightblue; border-style: none; border-color: green;">
+<select id = "skin" style = "position: absolute; top: 580px;">
+<option value = "pearl" >pearl</option>
+<option value = "pipe" >pipe</option>
+<option value = "bone" >bone</option>
+</select>
+<div id = "bluePlayer" style = "padding: 5px; position: absolute; top: 310px; left: 1000px; height: 200px; width: 200px; background-color: lightblue; border-style: none; border-color: green;">
 <h1>{{bluePlayer}} {{bluePlayerRating}}</h1>
 <h3 id = "blueClock"></h3>
 </div>
-<div id = "redPlayer" style = "position: absolute; top: 20px; left: 1000px; height: 200px; width: 150px; background-color: pink; border-style none; border-color: green;">
+<div id = "redPlayer" style = "padding: 5px; position: absolute; top: 20px; left: 1000px; height: 200px; width: 200px; background-color: pink; border-style none; border-color: green;">
 <h1>{{redPlayer}} {{redPlayerRating}}</h1>
 <h3 id = "redClock"></h3>
 </div>
-<a href = "/"><image src = "../images/buttons/menu.bmp" style = "position: absolute;" ></a>
-<button id = "resign" style = "position: absolute; top: 150px;">resign</button>
+<a href = "/"><button id = "menu" class = "menuButton" style = "font-size: 150%">Back to menu</button></a>
+<a href = "/review/{{index}}" ><button id = "review" class = "menuButton" style = "font-size: 150%">Review</button></a>
 
-<script type = "text/javascript" src = "/socket.io/socket.io.js"></script>
+<button id = "resign" style = "position: absolute; top: 150px;">resign</button>
+<div id = "pgnBox" style = "position: absolute; top: 200px; left: 30px; background-color: rgba(100,0,100,0.3); height: 300px; width: 260px; overflow-y: scroll;">
+<p id = "PGN"><p>
+</div>
+
+
 <script type = "text/javascript" src = "../javascripts/partical.js"></script>
 <script type = "text/javascript" src = "../javascripts/board.js"></script>
 <script type = "text/javascript" src = "../javascripts/clock.js"></script>
 
 <script type = "text/javascript">
+var skin = "pearl";
 blueClock.draw();
 redClock.draw();
 	if ({{player}} == 2) {
@@ -25,7 +36,7 @@ redClock.draw();
 		blueDiv.style.top = "20px";
 		redDiv.style.top = "310px";
 	}
-	var socket = io.connect();
+
 	var roomIndex = {{index}};
 	if ({{player}} == 2) {
 		board.isFliped = true;
@@ -34,6 +45,17 @@ redClock.draw();
 	board.set();
 	board.draw();
 	
+	if ({{player}} > 0) {
+		var gif = document.createElement("IMG");
+		if ({{player}} == 1) {
+			gif.src = "../images/buttons/moveAnimation.gif";
+		} else {
+			gif.src = "../images/buttons/moveAnimationRed.gif";
+		}
+		var pgnBox = document.getElementById("pgnBox");
+		pgnBox.appendChild(gif);
+	}
+	
 	for (y=0;y<board.size;y++) {
 		for (x=0;x<board.size;x++) {
 			var index = x + "x" + y;
@@ -41,9 +63,36 @@ redClock.draw();
 			partical.addEventListener('click', function () {
 				socket.emit('select', {roomIndex: {{index}}, name: "{{me}}", particalIndex: this.id});
 				socket.emit('roomEnter', {{index}});
+				if (board.particals[this.id].selected == "child") {
+					pgnBox.removeChild(gif);
+				}
 			});
+			
+			partical.ondragstart = function () {
+				socket.emit('select', {roomIndex: {{index}}, name: "{{me}}", particalIndex: this.id});
+				socket.emit('roomEnter', {{index}});
+				if ({{player}} > 0 ) {
+					showHint();
+				}
+				return false;
+			};
 		}
 	}
+	
+	function showHint () {
+		var gif = document.createElement("IMG");
+		if ({{player}} == 1) {
+			gif.src = "../images/buttons/moveAnimation.gif";
+		} else {
+			gif.src = "../images/buttons/moveAnimationRed.gif";
+		}
+		var pgnBox = document.getElementById("pgnBox");
+		pgnBox.appendChild(gif);
+		setTimeout(function () {
+			pgnBox.removeChild(gif);
+		}, 10000);
+	}
+	
 	document.getElementById("resign").addEventListener('click', function () {
 		socket.emit('resign', {roomIndex: {{index}}, name: "{{me}}"});
 	});
@@ -53,6 +102,9 @@ redClock.draw();
 	});
 	
 	socket.on('changes!' ,function (data) {
+	var PGN = document.getElementById("PGN");
+	PGN.innerHTML = data.PGN;
+	console.log(data.PGN);
 	var blueTime = data.blueTime.split(",");
 	var redTime = data.redTime.split(",");
 	blueClock.hours = blueTime[0];
@@ -205,7 +257,6 @@ redClock.draw();
 	
 	var blueBox = document.getElementById("bluePlayer");
 	var redBox = document.getElementById("redPlayer");
-	var br = document.createElement("BR");
 	var win = document.createElement("H2");
 	var lose = document.createElement("H2");
 	var drawB = document.createElement("H2");
@@ -219,21 +270,15 @@ redClock.draw();
 		
 			switch (data) {
 				case "blue wins":
-					blueBox.appendChild(br);
 					blueBox.appendChild(win);
-					redBox.appendChild(br);
 					redBox.appendChild(lose);
 				break;
 				case "red wins":
-					blueBox.appendChild(br);
 					blueBox.appendChild(lose);
-					redBox.appendChild(br);
 					redBox.appendChild(win);
 				break;
 				case "draw":
-					blueBox.appendChild(br);
 					blueBox.appendChild(drawB);
-					redBox.appendChild(br);
 					redBox.appendChild(drawR);
 			}
 			clearInterval(blueClock.interval);
@@ -241,9 +286,43 @@ redClock.draw();
 	});
 	
 	socket.emit('changes?', roomIndex);
+	skin = document.getElementById("skin").value;
 	var interval = setInterval(changes, 5000);
 	function changes() {
+		skin = document.getElementById("skin").value;
 		socket.emit('changes?', roomIndex);
 	}
-	socket.emit('game start', roomIndex);
+	if ("{{state}}" == "playing") {
+		socket.emit('game start', roomIndex);
+	}
+	adjustWindow();
+	document.body.onresize = function () {
+		adjustWindow();
+	};
+	
+	function adjustWindow () {
+		var boardDiv = document.getElementById("board");
+		boardDiv.style.left = window.innerWidth * 0.5 - 300 + "px";
+		var blueDiv = document.getElementById("bluePlayer");
+		var redDiv = document.getElementById("redPlayer");
+		blueDiv.style.left = window.innerWidth * 0.5 + 340 + "px";
+		redDiv.style.left = window.innerWidth * 0.5 + 340 + "px";
+		var pgnBox = document.getElementById("pgnBox");
+		pgnBox.style.left = window.innerWidth * 0.5 - 600 + "px";
+		var resign = document.getElementById("resign");
+		resign.style.left = window.innerWidth * 0.5 - 600 + "px";
+		var menu = document.getElementById("menu");
+		menu.style.left = window.innerWidth * 0.5 - 600 + "px";
+		var skinMenu = document.getElementById("skin");
+		skinMenu.style.left = window.innerWidth * 0.5 - 600 + "px";
+		var review = document.getElementById("review");
+		review.style.left = window.innerWidth * 0.5 - 600 + "px";
+		review.style.top = "520px";
+	};
+	login();
+	function login() {
+		var userName = "{{me}}";
+		var password = "{{password}}";
+		socket.emit('login', {userName: userName, password: password});
+	}
 </script>

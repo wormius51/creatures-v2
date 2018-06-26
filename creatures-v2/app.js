@@ -11,6 +11,12 @@ var index = require('./routes/index');
 var register = require('./routes/register');
 var tutorial = require('./routes/tutorial');
 var gameRoom = require('./routes/gameRoom');
+var stats = require('./routes/stats');
+var offline = require('./routes/offline');
+var video = require('./routes/video');
+var RPG = require('./routes/RPG');
+var puzzle = require('./routes/puzzle');
+var review = require('./routes/review');
 
 var app = express();
 
@@ -25,14 +31,19 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(session({secret: "ידכיר'0000239ףגףף,,גכק", resave: false, saveUninitialized: true}));
+app.use(session({secret: "gukgעןךטןעGLIןעיךHLhl1803jkd02-p", resave: false, saveUninitialized: true}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/register', register);
 app.use('/tutorial', tutorial);
 app.use('/game_room', gameRoom);
-
+app.use('/stats', stats);
+app.use('/offline', offline);
+app.use('/video', video);
+app.use('/RPG', RPG);
+app.use('/puzzle', puzzle);
+app.use('/review', review);
 
 
 // catch 404 and forward to error handler

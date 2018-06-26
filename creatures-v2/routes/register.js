@@ -18,7 +18,7 @@ router.post('/submit', function(req, res, next) {
 		req.session.destroy();
 	}
 	user.findOne({userName: userName}, function(err, doc) {
-		if (doc) {
+		if (doc || userName == "anonymius") {
 			req.session.name = userName;
 			res.redirect('/register');	
 		}else {
@@ -30,9 +30,10 @@ router.post('/submit', function(req, res, next) {
 				console.log(err);
 				return res.status(500).send();	
 			}
+			req.session.user = savedUser;
+			res.redirect('/');
 			return res.status(200).send();
 			});
-			res.redirect('/');
 		}
 	});
 });

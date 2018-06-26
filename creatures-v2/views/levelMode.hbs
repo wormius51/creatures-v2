@@ -1,0 +1,19 @@
+<script type = "text/javascript" src = "../javascripts/levels.js"></script>
+<img src = "../images/buttons/title.bmp" style = "position: absolute; top: 30px; left: 350px; height: 100px;" />
+<div id = "main" style= "overflow-y: scroll; position: absolute; top: 170px; left: 40px; height: 450px; width: 1300px; background-color: lightblue;">
+<br />
+<a href = "/"><img src = "../images/buttons/menu.bmp" align = "right" /></a>
+
+</div>
+
+<script type = "text/javascript">
+var main = document.getElementById("main");
+for (i=0;i<levels.length;i++) {
+	var div = document.createElement("DIV");
+	div.id = i;
+	div.innerHTML = levels[i].title;
+	div.addEventListener('click', function () {
+		startLevel(this.id);
+	});
+}
+</script>

@@ -62,7 +62,10 @@ function ratingChange(bluePlayer, bluePlayerRating, redPlayer, redPlayerRating, 
 }
 //calculates thr change of rating in case of a win.
 function ratingWinFormula(winner, loser) {
-	var change = 16*(1+(winner - loser)/400);
+	var change = 16*(1+(loser - winner)/400);
+	if (change < 0) {
+		change = 0;
+	}
 	return change;
 }
 //calculates the change of rating in case of a draw.

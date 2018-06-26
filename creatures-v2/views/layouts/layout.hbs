@@ -2,10 +2,37 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>{{ title }}</title>
-	<link rel="stylesheet" href="/stylesheets/style.css">
+	<meta name = "author" content = "Eyal Hazor">
+	<meta name = "description" content = "A two player strategy game where you create your creatures and fight the enemy ones.">
+	<meta name = "keywords" connect = "game, play, creatures, pipe, online, 2 player, strategy, board, creative">
+	<meta name = "application-name" connect = "Creatures">
+	<title id = "title">{{ title }}</title>
+	<link rel="stylesheet" href="/stylesheets/style2.css">
 </head>
 <body>
+<script type = "text/javascript" src = "/socket.io/socket.io.js"></script>
+<script type = "text/javascript">
+var socket = io.connect();
+
+socket.on('call {{name}}', function (data) {
+		console.log(data);
+		var link = document.createElement("A");
+		link.href = "/game_room/" + data.roomIndex;
+		var div = document.createElement("DIV");
+		var header = document.createElement("h2");
+		header.innerText = "Your game vs " + data.visitor + " has started. Click here to join.";
+		div.appendChild(header);
+		div.style.backgroundColor = "blue";
+		div.style.borderStyle = "solid";
+		div.style.borderColor = "purple";
+		div.style.width = "20%";
+		div.style.position = "absolute";
+		link.appendChild(div);
+		document.body.appendChild(link);
+		var title = document.getElementById("title");
+		title.innerText = "game started";
+	});
+</script>
 	{{{ body }}}
 </body>
 </html>

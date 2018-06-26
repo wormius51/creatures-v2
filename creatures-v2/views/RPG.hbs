@@ -1,0 +1,18 @@
+<div id = "tile" style = "position: absolute; top: 20px; left: 300px; width: 600px; height: 600px; background-color: white; border-color: black; border-style: solid;">
+</div>
+<a href = "/"><image id = "menu" src = "../images/buttons/menu.bmp" style = "position: absolute;" class = "menuButton" ></a>
+
+
+<script type = "text/javascript">
+	adjustWindow();
+		document.body.onresize = function () {
+			adjustWindow();
+		};
+	
+	function adjustWindow () {
+		var tileDiv = document.getElementById("tile");
+		tileDiv.style.left = window.innerWidth * 0.5 - 300 + "px";
+		var menu = document.getElementById("menu");
+		menu.style.left = window.innerWidth * 0.5 - 600 + "px";
+	};
+</script>

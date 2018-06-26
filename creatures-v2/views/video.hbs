@@ -1,0 +1,23 @@
+<video autoplay = "true" id = "video" style = "position: absolute; width: 600px;" controls>
+  <source id = "source" src = "../videos/first.mp4" type="video/mp4">
+</video>
+
+<a href = "/"><button id = "menuButton" class = "menuButton" style = "font-size: 150%">Back to menu</button></a>
+
+<script type = "text/javascript">
+adjustWindow();
+function adjustWindow () {
+	var video = document.getElementById("video");
+	video.style.left = (window.innerWidth / 2) - 300 + "px";
+	var menuButton = document.getElementById("menuButton");
+	menuButton.style.position = "absolute";
+	menuButton.style.top = "450px";
+	menuButton.style.left = (window.innerWidth / 2) - 300 + "px";
+}
+document.body.onresize = function () {adjustWindow();};
+
+if ("{{videoName}}" != "") {
+	var source = document.getElementById("source");
+	source.src = "../videos/" + "{{videoName}}" + ".mp4";
+}
+</script>

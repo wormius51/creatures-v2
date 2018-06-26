@@ -1,31 +1,37 @@
-<h3 id = "info" style = "position: absolute; top: 120px; left: 530px; background-color: blue; color: white;">A game by Eyal Hazor (wormius51)</h3>
-<h3 id = "users" style = "position: absolute; top: 10px; left: 10px;background-color: blue; color: white;"></h3>
-<img src = "../images/buttons/title.bmp" style = "position: absolute; top: 30px; left: 450px;" />
-<div style="position: absolute; top: 170px; left: 40px; height: 450px; width: 1300px; background-color: lightblue;">
-<button id = "play" style = "position: absolute; left: 1100px; top: 200px;" >play</button>
-<button id = "spactate" style = "position: absolute; left: 1150px; top: 200px;" >games in progress</button>
+<h3 id = "info" style = "position: absolute; top: 120px; left: 37%; color: white;">A game by Eyal Hazor (wormius51)</h3>
+<h3 id = "users" style = "position: absolute; top: 10px; left: 10px; color: white;"></h3>
+<img src = "../images/buttons/title.gif" class = "title" />
+<div id = "mainDiv" class = "mainDiv">
+<button id = "play" style = "position: absolute; left: 87%; top: 240px;" >play</button>
+<button id = "spactate" style = "position: absolute; left: 87%; top: 270px;" >games in progress</button>
 <br />
-<a href = "/tutorial/0"><img src = "../images/buttons/tutorial.bmp" align = "right" /></a>
-<br /><br /><br /><br />
-<img id = "createAgame" src = "../images/buttons/createagame.bmp" style = "height: 20%;" align = "right" />
-<div id = "chatBox" style = "overflow: scroll; position: absolute; top: 10px; left: 20px; height: 400px; width: 300px; background-color: yellow;">
+<a href = "/tutorial/0"><button class = "menuButton">Tutorial</button></a>
+<br /><br /><br /><br /><br />
+<a href = "/puzzle/0"><button class = "menuButton">Puzzles</button></a>
+<br /><br /><br /><br /><br />
+<button id = "createAgame" class = "menuButton" style = "font-size: 150%">Create a game</button>
+<br /><br /><br /><br /><br /><br /><br /><br />
+<a href = "/offline"><button class = "menuButton" style = "font-size: 150%">Play offline</button></a>
+<br /><br /><br /><br /><br />
+<a href = "/stats"><button class = "menuButton" style = "font-size: 150%">Leader board</button></a>
+<div id = "chatBox" style = "overflow-y: scroll; position: absolute; top: 10px; left: 20px; height: 400px; width: 25%; background-color: rgba(100,0,100,0.3);">
 <p id = "chat"></p>
 </div>
-<form id = "messageForm" align = "bottom" style = "position: absolute; top: 420px; left: 30px;">
+<form id = "messageForm" autocomplete = "off" align = "bottom" style = "position: absolute; top: 420px; left: 30px; width: 30%;">
 <input type = "text" name = "message" id = "message">
 <button type = "button" id = "sendButton">send</button>
 </form>
 
-<div id = "gameRoomsBox" style = "overflow-y: scroll; position: absolute; top: 10px; left: 370px; height: 420px; width: 700px; border-style: solid; border-color: purple;">
+<div id = "gameRoomsBox" style = "overflow-y: scroll; position: absolute; top: 10px; left: 28%; height: 420px; width: 55%; border-style: solid; border-color: purple;">
 <ul id = "gameRooms"></ul>
 </div>
 </div>
-<script type = "text/javascript" src = "/socket.io/socket.io.js"></script>
+
 
 <script type = "text/javascript">
 var chatBox = document.getElementById("chatBox");
 chatBox.scrollTop = chatBox.scrollHeight;
-var socket = io.connect();
+
 	
 	var message = document.getElementById("message");
 	var messageForm = document.getElementById("messageForm");
@@ -33,10 +39,17 @@ var socket = io.connect();
 	var button = document.getElementById("sendButton");
 
 	button.addEventListener('click', function() {
-		socket.emit('send message', "{{name}}: " + message.value);
+		socket.emit('send message', message.value);
 		console.log(message.value);
 		message.value = "";
 	});
+	
+	messageForm.addEventListener('submit', function(e) {
+		socket.emit('send message', message.value);
+		console.log(message.value);
+		message.value = "";
+		e.preventDefault();
+	}, false);
 	
 	socket.on('new message', function(data) {
 		var newLine = document.createTextNode(data.msg);
@@ -69,9 +82,10 @@ var socket = io.connect();
 			var roomTitleAndState = data.gameRooms[i].split(",");
 			if (roomTitleAndState[1] != "done" && ((roomTitleAndState[1] == "waiting" && !spactate) || (roomTitleAndState[1] == "playing" && spactate))) {
 				var gameRoom = document.createElement("DIV");
-				gameRoom.style.height = "20px";
-				gameRoom.style.width = "600px";
+				//gameRoom.style.height = "20px";
+				gameRoom.style.width = "90%";
 				gameRoom.style.backgroundColor = "blue";
+				gameRoom.style.padding = "10px";
 				gameRoom.style.borderStyle = "solid";
 				gameRoom.style.borderColor = "purple";
 				gameRoom.style.color = "white";
@@ -96,7 +110,7 @@ var socket = io.connect();
 		socket.emit('update me');
 	}
 	
-	socket.on('call {{name}}', function (data) {
+	/*socket.on('call {{name}}', function (data) {
 		console.log(data);
 		var link = document.createElement("A");
 		link.href = "/game_room/" + data.roomIndex;
@@ -107,12 +121,11 @@ var socket = io.connect();
 		div.style.backgroundColor = "blue";
 		div.style.borderStyle = "solid";
 		div.style.borderColor = "purple";
-		div.style.height = "70px";
-		div.style.width = "270px";
+		div.style.width = "20%";
 		div.style.position = "absolute";
 		link.appendChild(div);
 		document.body.appendChild(link);
-	});
+	});*/
 	
 	var createAgame = document.getElementById("createAgame");
 	createAgame.addEventListener('click', function () {
@@ -120,6 +133,9 @@ var socket = io.connect();
 	});
 	
 	function createMenu() {
+		if ("{{name}}" == "anonymius") {
+			return false;
+		}
 		var div = document.createElement("DIV");
 		div.innerHTML = "<a href = '/'><button>close</button></a><br /><form id = 'gameSettings' action = '/createAgame' method = 'post'></form>";
 		document.body.appendChild(div);
@@ -139,6 +155,7 @@ var socket = io.connect();
 		submitButton.type = "submit";
 		submitButton.innerText = "create game";
 		var boardSize = document.createElement("INPUT");
+		boardSize.style.width = "40%";
 		var hours = document.createElement("INPUT");
 		var minuts = document.createElement("INPUT");
 		var seconds = document.createElement("INPUT");
@@ -147,25 +164,25 @@ var socket = io.connect();
 		var secondsIncrament = document.createElement("INPUT");
 		boardSize.type = "text";
 		boardSize.name = "boardSize";
-		boardSize.value = "board size";
+		boardSize.placeholder = "board size";
 		hours.type = "text";
 		hours.name = "hours";
-		hours.value = "hours";
+		hours.placeholder = "hours";
 		minuts.type = "text";
 		minuts.name = "minuts";
-		minuts.value = "minutes";
+		minuts.placeholder = "minutes";
 		seconds.name = "seconds";
 		seconds.type = "text";
-		seconds.value = "seconds";
+		seconds.placeholder = "seconds";
 		hoursIncrament.type = "text";
 		hoursIncrament.name = "hours incrament";
-		hoursIncrament.value = "hours increment";
+		hoursIncrament.placeholder = "hours increment";
 		minutsIncrament.type = "text";
 		minutsIncrament.name = "minutsIncrament";
-		minutsIncrament.value = "minutes increment";
+		minutsIncrament.placeholder = "minutes increment";
 		secondsIncrament.name = "secondsIncrament";
 		secondsIncrament.type = "text";
-		secondsIncrament.value = "seconds increment";
+		secondsIncrament.placeholder = "seconds increment";
 		//hours.style.position= "absolute";
 		form.appendChild(boardSize);
 		//form.appendChild(time);
@@ -179,29 +196,53 @@ var socket = io.connect();
 		form.appendChild(submitButton);
 		div.style.position = "absolute";
 		div.style.top = "210px";
-		div.style.left = "500px";
-		div.style.height = "200px";
-		div.style.width = "400px";
+		div.style.left = "30%";
+		//div.style.height = "200px";
+		div.style.width = "30%";
 		div.style.borderStyle = "solid";
 		div.style.borderColor = "purple";
 		div.style.backgroundColor = "lightblue";
-		
+		var text = document.createElement("H3");
+		text.innerText = "board size must be even and between 14 and 50, time must be atlist 1 second.";
+		div.appendChild(text);
 	}
 </script>
 
-<div id = "userBox" style="position: absolute; top: 30px; left: 1040px; height: 100px; width: 300px; background-color: lightblue;">
+<div id = "userBox" style="padding: 10px; position: absolute; top: 30px; left: 75%; height: 100px; width: 20%; background-color: lightblue;">
 {{message}}
 <form action = "/login" method = "post">
-<input type = "text" name = "userName" />
-<input type = "password" name = "password" />
+<span><input type = "text" name = "userName" id = "userName" /></span>
+<span><input type = "password" name = "password" id = "password" /></span>
 <button type = "submit">login</button>
 </from>
 <a href = "/register"><button type = "button" >register</button></a>
 </div>
 
 <script type = "text/javascript">
+login();
+function login() {
+	var userName = "{{name}}";
+	var password = "{{password}}";
+	socket.emit('login', {userName: userName, password: password});
+}
+
 if("{{name}}" != "anonymius") {
 	var userBox = document.getElementById("userBox");
 	userBox.innerHTML = "<h1>{{name}}</h1><a href = '/logout'><button>logout</button></a>";
+}else {
+	createAgame.style.opacity = "0.5";
+	createAgame.onclick = "";
+	playButton.parentNode.removeChild(playButton);
+	spactateButton.parentNode.removeChild(spactateButton);
+	spactate = true;
+	var plzreg = document.createElement("H1");
+	plzreg.innerText = "To play online please register and log in.";
+	var link = document.createElement("A");
+	link.style.position = "absolute";
+	link.style.left = "5%";
+	link.href = "/register";
+	link.appendChild(plzreg);
+	var gameRoomsBox= document.getElementById("gameRoomsBox");
+	gameRoomsBox.appendChild(link);
 }
 </script>

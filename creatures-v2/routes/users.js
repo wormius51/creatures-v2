@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 mongoose.connect('localhost:27017/users');
+console.log("mongoose loaded");
 //template for useres.
 var schema = mongoose.Schema;
 var userSchema = new schema({

@@ -1,17 +1,85 @@
-<img src = "../images/buttons/tutorial.bmp" style = "position: absolute; top: 30px; left: 500px; height: 100px"/>
-<div style="position: absolute; top: 170px; left: 40px; height: 450px; width: 1300px; background-color: lightblue">
+<img class = "title" src = "../images/buttons/title.gif" />
+<h3 id = "pageInfo" style = "position: absolute; top: 120px; left: 45%; color: white;"></h3>
+<div class = "mainDiv">
 <br />
-<a href = "/"><img src = "../images/buttons/menu.bmp" align = "right" /></a>
+<a href = "/"><button class = "menuButton" style = "font-size: 150%">Back to menu</button></a>
 <br /><br /><br /><br />
-<a href = {{nextPage}}><img src = "../images/buttons/next.bmp" align = "right" /></a>
-<br /><br /><br /><br /><br /><br />
-<a href = {{previousPage}}><img src = "../images/buttons/previous.bmp" align = "right" /></a>
-<img src = {{pagePicture}} style = "position: absolute; top: 50px; left: 50px; height: 50%;"/>
-<pre style = "position: absolute; top: 50px; left: 500px;">
-<font size = "6">
+<a href = {{nextPage}}><button id = "next" class = "menuButton">Next</button></a>
+<br /><br /><br /><br /><br /><br /><br />
+<a href = {{previousPage}}><button id = "previous" class = "menuButton">previous</button></a>
+<br /><br /><br /><br /><br /><br /><br />
+<a href = "/video/tutorial" ><button class = "menuButton">Video</button></a>
+<div id = "board" style = "position: absolute; top: 20px; left: 30%; width: 400px; height: 400px; background-color: gray; border-color: black; border-style: solid;">
+</div>
+<div id = "commentBox" style = "width: 30%; box-shadow: none; position: absolute; top: 10px;">
+<h1 id = "comment" style = "color: black; text-shadow: 0 0;">
 {{# each paragraphText}}
 	{{this}}
 {{/each}}
-</size>
-</pre>
+</h1>
 </div>
+</div>
+
+<script type = "text/javascript" src = "../javascripts/partical.js"></script>
+<script type = "text/javascript" src = "../javascripts/board.js"></script>
+
+<script type = "text/javascript">
+	if ("{{page}}" >= 8) {
+		var next = document.getElementById("next");
+		next.parentNode.removeChild(next);
+	}
+	
+	if ("{{page}}" <= 0) {
+		var previous = document.getElementById("previous");
+		previous.parentNode.removeChild(previous);
+	}
+	
+	if ({{page}} == 3) {
+		var img = document.createElement("IMG");
+		img.src = "../images/buttons/whatsacore1.bmp";
+		img.style.height = "200px";
+		var commentBox = document.getElementById("commentBox");
+		commentBox.appendChild(img);
+	}
+	
+	var page = "{{page}}" * 1 + 1;
+	document.getElementById("pageInfo").innerText = "Page " + page + " of 9";
+	
+	var position = "{{position}}";
+	position = position.replace(/&#x3D;/g,"=");
+	var positionArray = position.split(",");
+	
+	for(i=0;i<positionArray.length;i++) {
+		var regex = /n=./ ;
+		if (regex.test(positionArray[i])) {
+			var nSize = positionArray[i].split("=");
+			board.size = nSize[1];
+			break;
+		}
+	}
+	
+	var skin = "pearl";
+	board.height = 380;
+	board.set();
+	board.setPosition(position);
+	board.draw();
+	board.adjust();
+	
+	function adjustWindow () {
+		var textBox = document.getElementById("textBox");
+		textBox.style.width = window.innerWidth / 3 + "px"
+	}
+	
+	adjustWindow();
+	
+	document.body.onresize = function () {
+		adjustWindow();
+	};
+	
+	function adjustWindow () {
+		var boardDiv = document.getElementById("board");
+		boardDiv.style.left = window.innerWidth * 0.5 - 250 + "px";
+		var commentBox = document.getElementById("commentBox");
+		commentBox.style.width = window.innerWidth * 0.5 - 200  - commentBox.style.left * 1 - 100 + "px";
+	}
+</script>

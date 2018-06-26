@@ -1,0 +1,1468 @@
+<script type = "text/javascript" src = "../offline/ai.js"></script>
+<script type="text/javascript" >
+//main menu of the game.
+function menu() {
+	document.body.innerHTML = "";
+	document.write("<link rel= 'stylesheet' href= '../stylesheets/style.css'>");
+	blueai = false;
+	redai = false;
+	islvlmod = false;
+	
+	firstSelect = "";
+	secondSelect = "";
+	
+	document.write("<title>Creatures offline</title>");
+	
+	background = document.createElement("DIV");
+	background.style.position = "absolute";
+	background.style.backgroundColor = "blue";
+	background.style.height = ngheight + "px";
+	background.style.width = ngwidth + "px";
+	background.style.top = "0px";
+	background.style.left = "0px";
+	document.body.appendChild(background);
+	
+	homeLink = document.createElement("A");
+	homeLink.href = "/";
+	
+	homeButton = document.createElement("IMG");
+	homeButton.src = "buttons/menu.bmp";
+	homeButton.style.position = "absolute";
+	homeButton.style.top = "220px";
+	homeButton.style.left = "900px";
+	
+	homeLink.appendChild(homeButton);
+	document.body.appendChild(homeLink);
+	
+	title = document.createElement("IMG");
+	title.src = "buttons/title.bmp";
+	title.style.position = "absolute";
+	title.style.top = "8px";
+	title.style.left = ngwidth/2 - 237 + "px";
+	document.body.appendChild(title);
+	
+	
+	playtwoplayes = document.createElement("IMG");
+	playtwoplayes.src = "buttons/twoplayers.bmp";
+	playtwoplayes.onclick = function () {if (!isNaN(input.value) && input.value >= 12 && input.value % 2 == 0) { n = input.value;twoPlayers(); }};
+	playtwoplayes.style.position = "absolute";
+	playtwoplayes.style.top = "220px";
+	playtwoplayes.style.left = "320px";
+	document.body.appendChild(playtwoplayes);
+	
+	vscom = document.createElement("IMG");
+	vscom.src = "buttons/vscomputer.bmp";
+	vscom.onclick = function () {if (!isNaN(input.value) && input.value >= 12 && input.value % 2 == 0) {redai = true; n = input.value; twoPlayers(); }};
+	vscom.style.position = "absolute";
+	vscom.style.top = "220px";
+	vscom.style.left = "620px";
+	document.body.appendChild(vscom);
+	
+	lvlmod = document.createElement("IMG");
+	lvlmod.src = "buttons/lvlmod.bmp";
+	lvlmod.onclick = function () {lvlmenu(); };
+	lvlmod.style.position = "absolute";
+	lvlmod.style.top = "360px";
+	lvlmod.style.left = "620px";
+	document.body.appendChild(lvlmod);
+	
+	input = document.createElement("input");
+	input.type = "text";
+	input.value = 14;
+	input.style.position = "absolute";
+	input.style.left = playtwoplayes.style.left;
+	input.style.top = "330px";
+	input.style.width = "50px";
+	document.body.appendChild(input);
+	
+	paragraph = document.createElement("P");
+	paragraph.style.color = "white";
+	text = document.createTextNode("Enter board size here.");
+	paragraph.appendChild(text);
+	br = document.createElement("BR");
+	paragraph.appendChild(br);
+	text = document.createTextNode("Must be 12 or above and even.");
+	paragraph.appendChild(text);
+	
+	paragraph.style.position = "absolute";
+	paragraph.style.left = input.style.left;
+	paragraph.style.top = "340px";
+	document.body.appendChild(paragraph);
+	
+	play = document.createElement("IMG");
+	play.src = "buttons/toutorial.bmp";
+	play.onclick = function () {toutorial(0);};
+	play.style.height = "70px";
+	play.style.position = "absolute";
+	play.style.left = "310px";
+	play.style.top = "400px";
+	document.body.appendChild(play);
+	
+}
+
+//level mode menu.
+function lvlmenu() {
+	document.body.innerHTML = "";
+	document.write("<link rel= 'stylesheet' href= '../stylesheets/style.css'>");
+	document.write("<title>creatures</title>");
+	document.write("a");
+	
+	firstSelect = "";
+	secondSelect = "";
+	
+	background = document.createElement("DIV");
+	background.style.position = "absolute";
+	background.style.backgroundColor = "blue";
+	background.style.height = ngheight + "px";
+	background.style.width = ngwidth + "px";
+	background.style.top = "0px";
+	background.style.left = "0px";
+	document.body.appendChild(background);	
+	
+	out = document.createElement("IMG");
+	out.src = "buttons/menu.bmp";
+	out.onclick = function () {menu();};
+	out.style.position = "absolute";
+	out.style.top = "110px";
+	out.style.left = ngwidth - 460 + "px";
+	document.body.appendChild(out);
+	
+	lvlmod = document.createElement("IMG");
+	lvlmod.src = "buttons/customlvl.bmp";
+	lvlmod.onclick = function () {customlvl = input.value; position = input.value.split(","); setLevel();};
+	lvlmod.style.position = "absolute";
+	lvlmod.style.left = out.style.left;
+	lvlmod.style.top = "250px";
+	document.body.appendChild(lvlmod);
+	
+	input = document.createElement("input");
+	input.type = "text";
+	input.value = customlvl;
+	input.style.position = "absolute";
+	input.style.left = lvlmod.style.left;
+	input.style.top = "370px";
+	input.style.width = "220px";
+	document.body.appendChild(input);
+	
+	play = document.createElement("IMG");
+	play.src = "buttons/play.bmp";
+	play.onclick = function () {position = levels[atlvl].split(","); islvlmod = true; setLevel();};
+	play.style.position = "absolute";
+	play.style.left = "310px";
+	play.style.top = "110px";
+	document.body.appendChild(play);
+	
+	paragraph = document.createElement("P");
+	paragraph.style.color = "white";
+	paragraph.style.position = "absolute";
+	paragraph.style.left = "310px";
+	paragraph.style.top = "250px";
+	
+	switch (atlvl) {
+		case 0:
+			text = document.createTextNode("Level 1. \"Quick draw\".");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("Try to destroy the red creature");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("in one move.");
+			paragraph.appendChild(text);
+		break;
+			
+		case 1:
+			text = document.createTextNode("Level 2. \"Double faced\".");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("Destroy the red core");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("without destroying the blue one.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		case 2:
+			text = document.createTextNode("Level 3. \"Power up\".");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("Red has 3 creatures and you only have one.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("But you can change the balance of power");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("by connecting to a neutral creature.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		case 3:
+			text = document.createTextNode("Level 4. \"Baby boom\".");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("Create more creatures by");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("moving your creature 2 spaces and");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("by doing so leavling a whole core behind.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		case 4:
+			text = document.createTextNode("Level 5. \"Guns blazing\".");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("This time red is coming for you");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("fast. Should develop quickly if you");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("want to win.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		default:
+			text = document.createTextNode("You have beaten all of the");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("avalble levels at this time.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("Try making your own custom level.");
+			paragraph.appendChild(text);
+	}
+	
+	document.body.appendChild(paragraph);
+}
+//explanes how to play the game.
+function toutorial(page) {
+	document.body.innerHTML = "";
+	document.write("<link rel= 'stylesheet' href= '../stylesheets/style.css'>");
+	document.write("<title>creatures</title>");
+	document.write("a");
+	
+	background = document.createElement("DIV");
+	background.style.position = "absolute";
+	background.style.backgroundColor = "blue";
+	background.style.height = ngheight + "px";
+	background.style.width = ngwidth + "px";
+	background.style.top = "0px";
+	background.style.left = "0px";
+	document.body.appendChild(background);
+	
+	out = document.createElement("IMG");
+	out.src = "buttons/menu.bmp";
+	out.onclick = function () {menu();};
+	out.style.height = "8%";
+	out.style.position = "absolute";
+	out.style.top = "110px";
+	out.style.left = ngwidth - 260 + "px";
+	document.body.appendChild(out);
+	
+	if (page < 8) {
+		lvlmod = document.createElement("IMG");
+		lvlmod.src = "buttons/next.bmp";
+		lvlmod.onclick = function () {toutorial(page + 1);};
+		lvlmod.style.height = "10%";
+		lvlmod.style.position = "absolute";
+		lvlmod.style.left = out.style.left;
+		lvlmod.style.top = "250px";
+		document.body.appendChild(lvlmod);
+	}
+	
+	if (page > 0) {
+		vscom = document.createElement("IMG");
+		vscom.src = "buttons/previous.bmp";
+		vscom.onclick = function () {toutorial(page - 1);};
+		vscom.style.height = "10%";
+		vscom.style.position = "absolute";
+		vscom.style.top = "400px";
+		vscom.style.left = out.style.left;
+		document.body.appendChild(vscom);
+	}
+	
+	title = document.createElement("IMG");
+	title.src = "buttons/toutorial" + page + ".bmp";
+	title.style.height = "200px";
+	title.style.position = "absolute";
+	title.style.top = "50px";
+	title.style.left = "250px";
+	document.body.appendChild(title);
+	
+	paragraph = document.createElement("P");
+	paragraph.style.color = "white";
+	paragraph.style.fontSize = "x-large";
+	paragraph.style.position = "absolute";
+	paragraph.style.left = "200px";
+	paragraph.style.top = "320px";
+	if (languege == "english") {
+	switch (page) {
+		case 0:
+			text = document.createTextNode("Welcome to Creatures.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("Creatures is a two player strategy game.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("The goal of the game is to destroy ");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("all of the enemy creatures.");
+			paragraph.appendChild(text);
+		break;
+		
+		case 1:
+			text = document.createTextNode("The board is made of \"L\" shaped");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("parts that can rotate and connect");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("to other parts by two points.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("A group of parts that are");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("connected are called a");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("creature. Here is an example");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("of a neutral creature.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		case 2:
+			text = document.createTextNode("Creatures belong to a player if");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("the creature has the player's core in it.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("Here is the pattern that is");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("the blue core. It is a whole");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("creature by itself.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		case 3:
+			text = document.createTextNode("Creatures can be more than");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("just the core. They can also");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("be a core connected");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("to more parts.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		case 4:
+			text = document.createTextNode("Here's a red core.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("It makes creatures belong");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("to the red player.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		case 5:
+			text = document.createTextNode("If a creature has a blue and");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("a red core it is purple and");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("both players control it.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		case 6:
+			text = document.createTextNode("Creatures don't move by stepping");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("from one square to another. Instead");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("they copy from one point to");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("another. In this example the");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("right bottom part is clicked.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		case 7:
+			text = document.createTextNode("Now the left bottom part");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("is clicked. The creature would");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("be copied from the right to");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("the left. Note that you can");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("only copy a creature to one");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("of its own parts.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+		
+		case 8:
+			text = document.createTextNode("The creature has been copied.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("The parts that were a part of it");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("didn't disappear but are now");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("parts of a neutral creature.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("In this way you can leave");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("parts behind and use them");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+			text = document.createTextNode("to build bigger creatures.");
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		break;
+	}
+	}else{
+		if (languege == "german") {
+			text = document.createTextNode(getexts[page]);
+			paragraph.appendChild(text);
+			br = document.createElement("BR");
+			paragraph.appendChild(br);
+		}
+	}
+	
+	document.body.appendChild(paragraph);
+}
+
+//ends the game and displays the result.
+function endgame() {
+	//document.body.innerHTML = "";
+	
+	blueai = false;
+	redai = false;
+	
+	if (islvlmod && redcreatures == 0 && bluecreatures > 0) {
+		atlvl++;
+	}
+	
+	background = document.createElement("DIV");
+	background.style.position = "absolute";
+	background.style.backgroundColor = "blue";
+	background.style.height = ngheight + "px";
+	background.style.width = ngwidth + "px";
+	background.style.top = "0px";
+	background.style.left = "0px";
+	document.body.appendChild(background);
+	
+	document.write("<title>creatures</title>");
+	
+	result = document.createElement("IMG");
+	if (bluecreatures == 0) {
+		if (redcreatures == 0) {
+			result.src = "buttons/draw.bmp";
+		}else{
+			result.src = "buttons/redwin.bmp";
+		}
+	}else{
+		result.src = "buttons/bluewin.bmp";
+	}
+	result.style.position = "absolute";
+	result.style.top = "8px";
+	result.style.left = ngwidth/2 - 125 + "px";
+	document.body.appendChild(result);
+	
+	out = document.createElement("IMG");
+	out.src = "buttons/menu.bmp";
+	out.onclick = function () {menu();};
+	out.style.position = "absolute";
+	out.style.top = "200px";
+	out.style.left = ngwidth/2 - 125 + "px";
+	document.body.appendChild(out);
+	
+	if (islvlmod) {
+		lvlmod = document.createElement("IMG");
+		lvlmod.src = "buttons/lvlmod.bmp";
+		lvlmod.onclick = function () {lvlmenu();};
+		lvlmod.style.position = "absolute";
+		lvlmod.style.top = "350px";
+		lvlmod.style.left = ngwidth/2 - 125 + "px";
+		document.body.appendChild(lvlmod);
+	}
+}
+
+//prints the board outside of selection.
+function print(){
+	
+	document.body.innerHTML = "";
+	document.write("<link rel= 'stylesheet' href= '../stylesheets/style.css'>");
+	document.write("<title>creatures</title>");
+	
+	
+	for (y=0;y<n;y++){
+		for (x=0;x<n;x++){
+			var index = x + "x" + y;
+			partical_selected[index] = "no";
+			ipartical_selected[index] = "no";
+			partical_team[index] = "black";
+		}
+	}
+	
+	
+	bluecreatures = 0;
+	redcreatures = 0;
+	
+	bildcreatures();
+	
+	if (turnblue && bluecreatures > 0) {
+		if (blueai) {
+			ai();
+		}
+	}
+	
+	if (!turnblue && redcreatures > 0) {
+		if (redai) {
+			ai();
+		}
+	}
+	
+	bluecreatures = 0;
+	redcreatures = 0;
+	
+	bildcreatures();
+	
+	if (bluecreatures == 0 || redcreatures == 0) {
+		endgame();
+	}else{
+	
+	for (y=0;y<n;y++){
+		for (x=0;x<n;x++){
+			var index = x + "x" + y;
+			switch (partical_team[index]){
+			case "red":
+			if(partical_vertical[index] == "up"){
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'red/upright.bmp' onclick = 'if(!turnblue){ select(name);printselect();}' />");
+				}else{
+					document.write("<img id = 'part' src = 'red/upleft.bmp' onclick = 'if(!turnblue){ select(name);printselect();}' />");
+				}
+			}else{
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'red/downright.bmp' onclick = 'if(!turnblue){ select(name);printselect();}' />");
+				}else{
+					document.write("<img id = 'part' src = 'red/downleft.bmp' onclick = 'if(!turnblue){ select(name);printselect();}' />");
+				}
+			}
+			break;
+			case "blue":
+			if(partical_vertical[index] == "up"){
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'blue/upright.bmp' onclick = 'if(turnblue){ select(name);printselect();}' />");
+				}else{
+					document.write("<img id = 'part' src = 'blue/upleft.bmp' onclick = 'if(turnblue){ select(name);printselect();}' />");
+				}
+			}else{
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'blue/downright.bmp' onclick = 'if(turnblue){ select(name);printselect();}' />");
+				}else{
+					document.write("<img id = 'part' src = 'blue/downleft.bmp' onclick = 'if(turnblue){ select(name);printselect();}' />");
+				}
+			}
+			break;
+			case "purple":
+			if(partical_vertical[index] == "up"){
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'purple/upright.bmp' onclick = 'select(name);printselect();' />");
+				}else{
+					document.write("<img id = 'part' src = 'purple/upleft.bmp' onclick = 'select(name);printselect();' />");
+				}
+			}else{
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'purple/downright.bmp' onclick = 'select(name);printselect();' />");
+				}else{
+					document.write("<img id = 'part' src = 'purple/downleft.bmp' onclick = 'select(name);printselect();' />");
+				}
+			}
+			break;
+			default:
+			if(partical_vertical[index] == "up"){
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'black/upright.bmp' onClick = 'print();' />");
+				}else{
+					document.write("<img id = 'part' src = 'black/upleft.bmp' onClick = 'print();' />");
+				}
+			}else{
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'black/downright.bmp' onClick = 'print();' />");
+				}else{
+					document.write("<img id = 'part' src = 'black/downleft.bmp' onClick = 'print();' />");
+				}
+			}
+				
+			}
+			
+			document.getElementById("part").style.height = ngheight/n + "px";
+			document.getElementById("part").style.position = "absolute";
+			document.getElementById("part").style.left = 300 + ngheight/n * x + "px";
+			document.getElementById("part").style.top = 10 + ngheight/n * y + "px";
+			document.getElementById("part").ondragstart = document.getElementById("part").onclick;
+			if (firstSelect == index) {
+				var marker = document.createElement("IMG");
+				marker.style.height = ngheight/n + "px";
+				marker.style.position = "absolute";
+				marker.style.left = 300 + ngheight/n * x + "px";
+				marker.style.top = 10 + ngheight/n * y + "px";
+				marker.src = "buttons/firstmarker.gif";
+				marker.onclick = document.getElementById("part").onclick;
+				marker.ondragstart = document.getElementById("part").onclick;
+				document.body.appendChild(marker);
+			} else {
+				if (secondSelect == index) {
+					var marker = document.createElement("IMG");
+					marker.style.height = ngheight/n + "px";
+					marker.style.position = "absolute";
+					marker.style.left = 300 + ngheight/n * x + "px";
+					marker.style.top = 10 + ngheight/n * y + "px";
+					marker.src = "buttons/secondmarker.gif";
+					marker.onclick = document.getElementById("part").onclick;
+					marker.ondragstart = document.getElementById("part").onclick;
+					document.body.appendChild(marker);
+				}
+			}
+			document.getElementById("part").name = index;
+			document.getElementById("part").id ="" + idtrash; idtrash++;
+			
+		}
+		document.write("<br />");
+		
+	}
+	
+	
+	/*document.write("<br />");
+	if (blueai) {
+		document.write("<img id = 'part' src = 'buttons/blueaion.bmp' onClick = 'blueai = false;print();' />");
+	}else{
+		document.write("<img id = 'part' src = 'buttons/blueaioff.bmp' onClick = 'blueai = true;print();' />");
+	}
+	document.write("     ");
+	if (redai) {
+		document.write("<img id = 'part' src = 'buttons/redaion.bmp' onClick = 'redai = false;print();' />");
+	}else{
+		document.write("<img id = 'part' src = 'buttons/redaioff.bmp' onClick = 'redai = true;print();' />");
+	}*/
+	
+	
+	out = document.createElement("IMG");
+	out.src = "buttons/menu.bmp";
+	out.onclick = function () {menu();};
+	out.style.height = "35px";
+	out.style.position = "absolute";
+	out.style.top = "200px";
+	out.style.left = ngwidth - 150 + "px";
+	document.body.appendChild(out);
+	
+	if (turnblue) {
+		title = document.createElement("IMG");
+		title.src = "buttons/blueturn.bmp";
+		title.style.height = "60px";
+		title.style.position = "absolute";
+		title.style.top = "100px";
+		title.style.left = ngwidth - 150 + "px";
+		document.body.appendChild(title);
+	}else{
+		title = document.createElement("IMG");
+		title.src = "buttons/redturn.bmp";
+		title.style.height = "60px";
+		title.style.position = "absolute";
+		title.style.top = "100px";
+		title.style.left = ngwidth - 150 + "px";
+		document.body.appendChild(title);
+	}
+	
+	lvlmod = document.createElement("IMG");
+	lvlmod.src = "buttons/lvlmod.bmp";
+	lvlmod.onclick = function () {lvlmenu(); };
+	lvlmod.style.position = "absolute";
+	lvlmod.style.height = "60";
+	lvlmod.style.top = "300px";
+	lvlmod.style.left = ngwidth - 150 + "px";
+	document.body.appendChild(lvlmod);
+	}
+}
+
+//a function for onClick testing.
+function switchteam(x,y){
+	var index = x + "x" + y;
+	if (partical_team[index] == "undefined") {
+		alert("Not a valid index, type [x]x[y] when -1<x,y<" + (n-1));}
+	else {
+		if (partical_team[index] == "red") {
+		partical_team[index] = "blue";}
+		else {
+		partical_team[index] = "red";}
+	}
+}
+
+//selects a partical.
+function select(index){
+	
+	var x = partical_x[index];
+	var y = partical_y[index];
+	if (partical_selected[index] == "yes") {
+		firstSelect = "";
+		secondSelect = "";
+		for (y=0;y<n;y++){
+			for (x=0;x<n;x++){
+			var index = x + "x" + y;
+			partical_selected[index] = "no";
+			}
+		}
+	}else{
+		if (partical_selected[index] == "child"){
+		if(turnblue){
+			turnblue = false;
+		}else{
+			turnblue = true;
+		}
+		
+		secondSelect = index;
+		
+		for (y=0;y<n;y++){
+			for (x=0;x<n;x++){
+			var indexselected = x + "x" + y;
+			if (partical_selected[indexselected] == "yes"){
+				var dx = partical_x[index] - partical_x[indexselected];
+				var dy = partical_y[index] - partical_y[indexselected];
+				
+				for (y=0;y<n;y++){
+					for (x=0;x<n;x++){
+					var indexchild = x + "x" + y;
+						if (partical_selected[indexchild] == "child" || partical_selected[indexchild] == "yes"){
+							var copyx = partical_x[indexchild] + dx;
+							var copyy = partical_y[indexchild] + dy;
+							var indexcopy = copyx + "x" + copyy;
+							ipartical_horizontal[indexcopy] = partical_horizontal[indexchild];
+							ipartical_vertical[indexcopy] = partical_vertical[indexchild];
+							ipartical_selected[indexcopy] = "child";
+						}
+					}
+				}
+				
+				for (b=0;b<n;b++){
+					for (a=0;a<n;a++){
+					var index = a + "x" + b;
+						if (ipartical_selected[index] == "child"){
+							partical_horizontal[index] = ipartical_horizontal[index];
+							partical_vertical[index] = ipartical_vertical[index];
+						}
+					}
+				}
+			}
+			
+			}
+		}
+		
+		}else{
+			partical_selected[index] = "yes";
+			firstSelect = index;
+		}
+	}
+	
+	for (b=0;b<n;b++){
+		for (a=0;a<n;a++){
+			var index = a + "x" + b;
+			ipartical_selected[index] = "no";
+		}
+	}
+	
+	creature(x,y,"vertical");
+	creature(x,y,"horizontal");
+}
+
+//prints the board inside of selection.
+function printselect(){
+	document.body.innerHTML = "";
+	document.write("<link rel= 'stylesheet' href= '../stylesheets/style.css'>");
+	document.write("<title>creatures</title>");
+	for (y=0;y<n;y++){
+		for (x=0;x<n;x++){
+			var index = x + "x" + y;
+			if (partical_selected[index] == "yes"){
+				if(partical_vertical[index] == "up"){
+					if(partical_horizontal[index] == "right"){
+						document.write("<img id = 'part' src = 'green/upright.bmp' onclick = 'select(name);print();' />");
+					}else{
+						document.write("<img id = 'part' src = 'green/upleft.bmp' onclick = 'select(name);print();' />");
+					}
+					}else{
+						if(partical_horizontal[index] == "right"){
+							document.write("<img id = 'part' src = 'green/downright.bmp' onclick = 'select(name);print();' />");
+						}else{
+							document.write("<img id = 'part' src = 'green/downleft.bmp' onclick = 'select(name);print();' />");
+						}
+					}
+			}else{
+			
+			if (partical_selected[index] == "child"){
+				if(partical_vertical[index] == "up"){
+					if(partical_horizontal[index] == "right"){
+						document.write("<img id = 'part' src = 'yellow/upright.bmp' onclick = 'select(name);print();' />");
+					}else{
+						document.write("<img id = 'part' src = 'yellow/upleft.bmp' onclick = 'select(name);print();' />");
+					}
+					}else{
+						if(partical_horizontal[index] == "right"){
+							document.write("<img id = 'part' src = 'yellow/downright.bmp' onclick = 'select(name);print();' />");
+						}else{
+							document.write("<img id = 'part' src = 'yellow/downleft.bmp' onclick = 'select(name);print();' />");
+						}
+					}
+			}else{
+			
+			switch (partical_team[index]){
+			case "red":
+			if(partical_vertical[index] == "up"){
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'red/upright.bmp' />");
+				}else{
+					document.write("<img id = 'part' src = 'red/upleft.bmp' />");
+				}
+			}else{
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'red/downright.bmp' />");
+				}else{
+					document.write("<img id = 'part' src = 'red/downleft.bmp' />");
+				}
+			}
+			break;
+			case "blue":
+			if(partical_vertical[index] == "up"){
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'blue/upright.bmp' />");
+				}else{
+					document.write("<img id = 'part' src = 'blue/upleft.bmp' />");
+				}
+			}else{
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'blue/downright.bmp' />");
+				}else{
+					document.write("<img id = 'part' src = 'blue/downleft.bmp' />");
+				}
+			}
+			break;
+			case "purple":
+			if(partical_vertical[index] == "up"){
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'purple/upright.bmp' />");
+				}else{
+					document.write("<img id = 'part' src = 'purple/upleft.bmp' />");
+				}
+			}else{
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'purple/downright.bmp' />");
+				}else{
+					document.write("<img id = 'part' src = 'purple/downleft.bmp' />");
+				}
+			}
+			break;
+			default:
+			if(partical_vertical[index] == "up"){
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'black/upright.bmp' />");
+				}else{
+					document.write("<img id = 'part' src = 'black/upleft.bmp' />");
+				}
+			}else{
+				if(partical_horizontal[index] == "right"){
+					document.write("<img id = 'part' src = 'black/downright.bmp' />");
+				}else{
+					document.write("<img id = 'part' src = 'black/downleft.bmp' />");
+				}
+			}
+			}
+			}
+			}
+			
+			document.getElementById("part").style.height = ngheight/n + "px";
+			document.getElementById("part").name = index;
+			document.getElementById("part").style.position = "absolute";
+			document.getElementById("part").style.left = 300 + ngheight/n * x + "px";
+			document.getElementById("part").style.top = 10 + ngheight/n * y + "px";
+			document.getElementById("part").ondragstart = document.getElementById("part").onclick;
+			document.getElementById("part").id ="" + idtrash; idtrash++;
+			
+		}
+		document.write("<br />");
+	}
+	
+	out = document.createElement("IMG");
+	out.src = "buttons/menu.bmp";
+	out.onclick = function () {menu();};
+	out.style.height = "35px";
+	out.style.position = "absolute";
+	out.style.top = "200px";
+	out.style.left = ngwidth - 150 + "px";
+	document.body.appendChild(out);
+	
+	if (turnblue) {
+		title = document.createElement("IMG");
+		title.src = "buttons/blueturn.bmp";
+		title.style.height = "60px";
+		title.style.position = "absolute";
+		title.style.top = "100px";
+		title.style.left = ngwidth - 150 + "px";
+		document.body.appendChild(title);
+	}else{
+		title = document.createElement("IMG");
+		title.src = "buttons/redturn.bmp";
+		title.style.height = "60px";
+		title.style.position = "absolute";
+		title.style.top = "100px";
+		title.style.left = ngwidth - 150 + "px";
+		document.body.appendChild(title);
+	}
+	
+	lvlmod = document.createElement("IMG");
+	lvlmod.src = "buttons/lvlmod.bmp";
+	lvlmod.onclick = function () {lvlmenu(); };
+	lvlmod.style.position = "absolute";
+	lvlmod.style.height = "60";
+	lvlmod.style.top = "300px";
+	lvlmod.style.left = ngwidth - 150 + "px";
+	document.body.appendChild(lvlmod);
+	//document.write("select");
+	
+	/*document.write("<br />");
+	if (blueai) {
+		document.write("<img id = 'part' src = 'buttons/blueaion.bmp' onClick = 'blueai = false;printselect();' />");
+	}else{
+		document.write("<img id = 'part' src = 'buttons/blueaioff.bmp' onClick = 'blueai = true;printselect();' />");
+	}
+	document.write("     ");
+	if (redai) {
+		document.write("<img id = 'part' src = 'buttons/redaion.bmp' onClick = 'redai = false;printselect();' />");
+	}else{
+		document.write("<img id = 'part' src = 'buttons/redaioff.bmp' onClick = 'redai = true;printselect();' />");
+	}*/
+}
+
+//sets selected of particals from the current creature to "child".
+function creature(x,y,vh){
+	var index = x + "x" + y;
+	var indexnext;
+	if (vh == "horizontal"){
+		if (partical_horizontal[index] == "right"){
+			x++;
+			indexnext = x + "x" + y;
+			if (partical_horizontal[indexnext] == "left"){
+				partical_selected[indexnext] = "child";
+				creature(x,y,"vertical");
+			}
+		}else{
+			x--;
+			indexnext = x + "x" + y;
+			if (partical_horizontal[indexnext] == "right"){
+				partical_selected[indexnext] = "child";
+				creature(x,y,"vertical");
+			}
+		}
+	}
+	else{
+		if (partical_vertical[index] == "down"){
+			y++;
+			indexnext = x + "x" + y;
+			if (partical_vertical[indexnext] == "up"){
+				partical_selected[indexnext] = "child";
+				creature(x,y,"horizontal");
+			}
+		}else{
+			y--;
+			indexnext = x + "x" + y;
+			if (partical_vertical[indexnext] == "down"){
+				partical_selected[indexnext] = "child";
+				creature(x,y,"horizontal");
+			}
+		}
+	}
+}
+//equlizes the team across the creature.
+function equlizeteam(x,y,vh){
+	var index = x + "x" + y;
+	var indexnext;
+	if (vh == "horizontal"){
+		if (partical_horizontal[index] == "right"){
+			x++;
+			indexnext = x + "x" + y;
+			if (partical_horizontal[indexnext] == "left"){
+				partical_team[indexnext] = partical_team[index];
+				equlizeteam(x,y,"vertical");
+			}
+		}else{
+			x--;
+			indexnext = x + "x" + y;
+			if (partical_horizontal[indexnext] == "right"){
+				partical_team[indexnext] = partical_team[index];
+				equlizeteam(x,y,"vertical");
+			}
+		}
+	}
+	else{
+		if (partical_vertical[index] == "down"){
+			y++;
+			indexnext = x + "x" + y;
+			if (partical_vertical[indexnext] == "up"){
+				partical_team[indexnext] = partical_team[index];
+				equlizeteam(x,y,"horizontal");
+			}
+		}else{
+			y--;
+			indexnext = x + "x" + y;
+			if (partical_vertical[indexnext] == "down"){
+				partical_team[indexnext] = partical_team[index];
+				equlizeteam(x,y,"horizontal");
+			}
+		}
+	}
+}
+//sets all the creatures on the board.
+
+function bildcreatures(){
+	for (y=0;y<n;y++){
+		for (x=0;x<n;x++){
+			var index = x + "x" + y;
+			partical_team[index] = "black";
+		}
+	}
+	
+	for (y=0;y<n;y++){
+		for (x=0;x<n;x++){
+			var index = x + "x" + y;
+			var indexb = x + "x" + (y-1);
+			var indexc = (x+1) + "x" + (y-1);
+			var indexd = (x+1) + "x" + y;
+			if (partical_horizontal[index] == "right" && partical_vertical[index] == "up" && partical_horizontal[indexb] == "right" && partical_vertical[indexb] == "down" &&partical_horizontal[indexc] == "left" && partical_vertical[indexc] == "down" && partical_horizontal[indexd] == "right" && partical_vertical[indexd] == "up"){
+				bluecreatures++;
+				if(partical_team[index] == "red"){
+					partical_team[index] = "purple";
+				}else{
+					partical_team[index] = "blue";
+				}
+				equlizeteam(x,y,"vertical");
+				equlizeteam(x,y,"horizontal");
+			}
+			if (partical_horizontal[index] == "left" && partical_vertical[index] == "up" && partical_horizontal[indexb] == "right" && partical_vertical[indexb] == "down" &&partical_horizontal[indexc] == "left" && partical_vertical[indexc] == "down" && partical_horizontal[indexd] == "left" && partical_vertical[indexd] == "up"){
+				bluecreatures++;
+				if(partical_team[index] == "red"){
+					partical_team[index] = "purple";
+				}else{
+					partical_team[index] = "blue";
+				}
+				equlizeteam(x,y,"vertical");
+				equlizeteam(x,y,"horizontal");
+			}
+			if (partical_horizontal[index] == "right" && partical_vertical[index] == "up" && partical_horizontal[indexb] == "right" && partical_vertical[indexb] == "down" &&partical_horizontal[indexc] == "right" && partical_vertical[indexc] == "down" && partical_horizontal[indexd] == "left" && partical_vertical[indexd] == "up"){
+				redcreatures++;
+				if(partical_team[index] == "blue"){
+					partical_team[index] = "purple";
+				}else{
+					partical_team[index] = "red";
+				}
+				equlizeteam(x,y,"vertical");
+				equlizeteam(x,y,"horizontal");
+			}
+			if (partical_horizontal[index] == "right" && partical_vertical[index] == "up" && partical_horizontal[indexb] == "left" && partical_vertical[indexb] == "down" &&partical_horizontal[indexc] == "left" && partical_vertical[indexc] == "down" && partical_horizontal[indexd] == "left" && partical_vertical[indexd] == "up"){
+				redcreatures++;
+				if(partical_team[index] == "blue"){
+					partical_team[index] = "purple";
+				}else{
+					partical_team[index] = "red";
+				}
+				equlizeteam(x,y,"vertical");
+				equlizeteam(x,y,"horizontal");
+			}
+		}
+	}
+}
+/*
+//computer is playing.
+function ai() {
+	var choices = new Array();
+	var team;
+	var choicenumber = 0;
+	if (turnblue) {
+		team = "blue";
+	}else{
+		team = "red";
+	}
+	for (y=0;y<n;y++) {
+		for (x=0;x<n;x++) {
+			var index = x + "x" + y;
+			if (partical_team[index] == team || partical_team[index] == "purple") {
+				choices[choicenumber] = index;
+				choicenumber++;
+			}
+		}
+	}
+	var choice = Math.floor(Math.random() * choices.length);
+	var selectedindex = choices[choice];
+	select(selectedindex);
+	choices = [];
+	choicenumber = 0;
+	
+	for (y=0;y<n;y++) {
+		for (x=0;x<n;x++) {
+			var index = x + "x" + y;
+			if (partical_selected[index] == "child") {
+				if (2 * partical_x[index] - partical_x[selectedindex] >= 1 && 2 * partical_x[index] - partical_x[selectedindex] < n - 1 && 2 * partical_y[index] - partical_y[selectedindex] >= 1 && 2 * partical_y[index] - partical_y[selectedindex] < n - 1) {
+				choices[choicenumber] = index;
+				choicenumber++;
+				}
+			}
+		}
+	}
+	
+	if (choices.length > 0) {
+	
+		choice = Math.floor(Math.random() * choices.length);
+		selectedindex = choices[choice];
+		select(selectedindex);
+		}
+		for (y=0;y<n;y++){
+			for (x=0;x<n;x++){
+				var index = x + "x" + y;
+				partical_selected[index] = "no";
+				ipartical_selected[index] = "no";
+			}
+		}
+		
+	if (choices.length == 0) {
+		ai();
+	}
+}
+*/
+function twoPlayers() {
+	
+	bluecreatures = 0;
+	redcreatures = 0;
+	
+	turnblue = true;
+	
+	partical_team = [];
+	partical_x = [];
+	partical_y = [];
+	partical_horizontal = [];
+	partical_vertical = [];
+	partical_selected = [];
+	partical_element = [];
+
+	ipartical_x = [];
+	ipartical_y = [];
+	ipartical_horizontal = [];
+	ipartical_vertical = [];
+	ipartical_selected = [];
+	
+	for (y=0;y<n;y++){
+		for (x=0;x<n;x++){
+			var index = x + "x" + y;
+			partical_x[index] = x;
+			partical_y[index] = y;
+			if(x<n/2){
+				partical_horizontal[index] = "right";
+			}else{
+				partical_horizontal[index] = "left";
+			}
+			if(y<n/2){
+				partical_vertical[index] = "down";
+			}else{
+				partical_vertical[index] = "up";
+			}
+			partical_selected[index] = "no";
+		}
+	}
+	for (y=0;y<n;y++){
+		for (x=0;x<n;x++){
+			var index = x + "x" + y;
+			ipartical_x[index] = x;
+			ipartical_y[index] = y;
+			ipartical_horizontal[index] = "right";
+			ipartical_vertical[index] = "down";
+		}
+	}
+	partical_horizontal[(n/2 - 5) + "x2"] = "left";
+	partical_horizontal[(n/2 - 5) + "x" + (n-3)] = "left";
+	partical_horizontal[(n/2 + 4) + "x2"] = "right";
+	partical_horizontal[(n/2 + 4) + "x" + (n-3)] = "right";
+	partical_vertical[(n/2 - 6) + "x2"] = "up";
+	partical_vertical[(n/2 - 5) + "x2"] = "up";
+	partical_vertical[(n/2 - 6) +  "x" + (n-3)] = "down";
+	partical_vertical[(n/2 - 5) + "x" + (n-3)] = "down";
+	partical_vertical[(n/2 + 4) + "x2"] = "up";
+	partical_vertical[(n/2 + 5) + "x2"] = "up";
+	partical_vertical[(n/2 + 4) + "x" + (n-3)] = "down";
+	partical_vertical[(n/2 + 5) + "x" + (n-3)] = "down";
+	
+	print();
+
+}
+//sets the position according to the position array.
+function setLevel() {
+
+	bluecreatures = 0;
+	redcreatures = 0;
+	
+	turnblue = true;
+	redai = true;
+	
+	partical_team = [];
+	partical_x = [];
+	partical_y = [];
+	partical_horizontal = [];
+	partical_vertical = [];
+	partical_selected = [];
+	partical_element = [];
+
+	ipartical_x = [];
+	ipartical_y = [];
+	ipartical_horizontal = [];
+	ipartical_vertical = [];
+	ipartical_selected = [];
+	
+	for (i=0;i<position.length;i++) {
+		var parameters = new Array();
+		parameters = position[i].split("=");
+		if (parameters[0] == "n") {
+			n = parameters[1] * 1;
+		}
+	}
+	
+	for (y=0;y<n;y++){
+		for (x=0;x<n;x++){
+			var index = x + "x" + y;
+			partical_x[index] = x;
+			partical_y[index] = y;
+			if(x<n/2){
+				partical_horizontal[index] = "right";
+			}else{
+				partical_horizontal[index] = "left";
+			}
+			if(y<n/2){
+				partical_vertical[index] = "down";
+			}else{
+				partical_vertical[index] = "up";
+			}
+			partical_selected[index] = "no";
+		}
+	}
+	for (y=0;y<n;y++){
+		for (x=0;x<n;x++){
+			var index = x + "x" + y;
+			ipartical_x[index] = x;
+			ipartical_y[index] = y;
+			ipartical_horizontal[index] = "right";
+			ipartical_vertical[index] = "down";
+		}
+	}
+
+	for (i=0;i<position.length;i++) {
+		var parameters = new Array();
+		parameters = position[i].split("=");
+		if (parameters[0] != "n") {
+			var index = parameters[0];
+			switch (parameters[1]) {
+				case "ul":
+					partical_vertical[index] = "up";
+					partical_horizontal[index] = "left";
+				break;
+				
+				case "dl":
+					partical_vertical[index] = "down";
+					partical_horizontal[index] = "left";
+				break;
+				
+				case "ur":
+					partical_vertical[index] = "up";
+					partical_horizontal[index] = "right";
+				break;
+				
+				case "dr":
+					partical_vertical[index] = "down";
+					partical_horizontal[index] = "right";
+				break;
+			}
+		}
+	}
+	
+	print();
+
+}
+
+</script>
+
+</head>
+<body>
+
+<script type="text/javascript">
+
+var input;
+
+var ngwidth = 1200;
+var ngheight = 600;
+
+var homeLink;
+var homeButton;
+var background;
+var title;
+var paragraph;
+var text;
+var br;
+var playtwoplayes;
+var vscom;
+var lvlmod;
+var play;
+var result;
+var out;
+var muteunmute;
+var position = new Array("n=14","2x1=ul","2x12=dl","11x1=ur","11x12=dr","1x1=ur","1x12=dr","12x1=ul","12x12=dl");
+var levels = new Array();
+var islvlmod = false;
+var atlvl = 0;
+
+var customlvl = "n=14,2x1=ul,2x12=dl,11x1=ur,11x12=dr,1x1=ur,1x12=dr,12x1=ul,12x12=dl";
+levels.push("n=4,0x2=dr,1x2=dl,3x1=ul,2x1=ur");
+levels.push("n=4,1x1=dr,2x1=dl,3x1=dl,1x2=ur,2x2=ur,2x3=ul");
+levels.push("n=8,0x6=dr,1x6=dl,0x1=ur,1x1=ul,7x1=ul,6x1=ur,5x1=ul,4x1=ur,3x7=ul,3x6=dr,4x6=dl,4x7=ur,5x6=dr,6x5=dl,5x5=ur,5x4=dl,4x4=dr,3x4=dl,2x4=dr,2x5=ul,1x4=dl,1x3=ul,2x2=dl,2x3=ur,3x3=ul,4x3=ur,5x3=ul,5x2=dr,6x3=ur");
+levels.push("n=8,0x1=ur,1x1=ul,7x1=ul,6x1=ur,0x6=dr,1x6=dl,2x7=ul");
+levels.push("n=14,5x3=ul,4x3=ur,6x2=ul,7x2=ur,9x3=ul,8x3=ur,2x12=dl,11x12=dr,1x12=dr,12x12=dl");
+
+var languege = "english";
+
+var getexts = new Array();
+
+var n = 14;
+
+var bluecreatures = 0;
+var redcreatures = 0;
+var blueai = false;
+var redai = false;
+var turnblue = true;
+var partical_team = new Array();
+var partical_x = new Array();
+var partical_y = new Array();
+var partical_horizontal = new Array();
+var partical_vertical = new Array();
+var partical_selected = new Array();
+var partical_element = new Array();
+
+var ipartical_x = new Array();
+var ipartical_y = new Array();
+var ipartical_horizontal = new Array();
+var ipartical_vertical = new Array();
+var ipartical_selected = new Array();
+
+var idtrash = 0;
+
+var firstSelect = "";
+var secondSelect = "";
+
+menu();
+</script>

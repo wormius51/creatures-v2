@@ -1,0 +1,82 @@
+<div id = "board" style = "position: absolute; top: 20px; left: 300px; width: 600px; height: 600px; background-color: gray; border-color: black; border-style: solid;">
+</div>
+<div id = "bluePlayer" style = "padding: 5px; position: absolute; top: 310px; left: 1000px; height: 200px; width: 200px; background-color: lightblue; border-style: none; border-color: green;">
+<h1>{{bluePlayer}} {{bluePlayerRating}}</h1>
+</div>
+<div id = "redPlayer" style = "padding: 5px; position: absolute; top: 20px; left: 1000px; height: 200px; width: 200px; background-color: pink; border-style none; border-color: green;">
+<h1>{{redPlayer}} {{redPlayerRating}}</h1>
+</div>
+<a href = "/"><button id = "menu" class = "menuButton" style = "font-size: 150%">Back to menu</button></a>
+<a href = "/game_room/{{index}}"><button id = "backToGame" class = "menuButton" style = "font-size: 150%">Back to game</button></a>
+<button onclick = "reviewer.nextMove();" id = "nextMove" class = "menuButton" style = "font-size: 150%">Next move</button>
+<div id = "pgnBox" style = "position: absolute; top: 200px; left: 30px; background-color: rgba(100,0,100,0.3); height: 300px; width: 260px; overflow-y: scroll;">
+<p id = "PGN"><p>
+</div>
+
+<script type = "text/javascript" src = "../javascripts/partical.js"></script>
+<script type = "text/javascript" src = "../javascripts/board.js"></script>
+
+<script type = "text/javascript">
+var skin = "pearl";
+
+var pgnHTML = "{{PGN}}";
+pgnHTML = pgnHTML.replace(/&lt;/g,"<");
+pgnHTML = pgnHTML.replace(/&gt;/g,">");
+var PGN = document.getElementById("PGN");
+PGN.innerHTML = pgnHTML;
+
+var moves = pgnHTML.replace(/<br \/>/g,"");
+moves = moves.replace(/\.\d\d/g,",");
+moves = moves.replace(/\.\d/g,",");
+moves = moves.replace(/ /g,"");
+movesArray = moves.split(",");
+movesArray.shift();
+
+var position = "{{position}}";
+position = position.replace(/&#x3D;/g,"=n0");
+
+board.size = {{boardSize}};
+board.set();
+if (position != "") {
+	board.setPosition(position);
+}
+board.draw();
+
+
+adjustWindow();
+	document.body.onresize = function () {
+		adjustWindow();
+	};
+	
+	function adjustWindow () {
+		var boardDiv = document.getElementById("board");
+		boardDiv.style.left = window.innerWidth * 0.5 - 300 + "px";
+		var blueDiv = document.getElementById("bluePlayer");
+		var redDiv = document.getElementById("redPlayer");
+		blueDiv.style.left = window.innerWidth * 0.5 + 340 + "px";
+		redDiv.style.left = window.innerWidth * 0.5 + 340 + "px";
+		var pgnBox = document.getElementById("pgnBox");
+		pgnBox.style.left = window.innerWidth * 0.5 - 600 + "px";
+		var menu = document.getElementById("menu");
+		menu.style.left = window.innerWidth * 0.5 - 600 + "px";
+		var nextMove = document.getElementById("nextMove");
+		nextMove.style.left = window.innerWidth * 0.5 - 600 + "px";
+		nextMove.style.top = "120px";
+		var backToGame = document.getElementById("backToGame");
+		backToGame.style.left = window.innerWidth * 0.5 - 600 + "px";
+		backToGame.style.top = "520px";
+	};
+	login();
+	function login() {
+		var userName = "{{me}}";
+		var password = "{{password}}";
+		socket.emit('login', {userName: userName, password: password});
+	}
+</script>
+
+<script type = "text/javascript" src = "../javascripts/reviewer.js"></script>
+<script type = "text/javascript">
+reviewer.setDefultPosition();
+reviewer.buildCreatures();
+board.adjust();
+</script>

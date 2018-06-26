@@ -1,0 +1,122 @@
+<img class = "title" src = "../images/buttons/title.gif" />
+
+<div class = "mainDiv">
+<br />
+<a href = "/"><button class = "menuButton" style = "font-size: 150%">Back to menu</button></a>
+{{#if notLast}}
+<br /><br /><br /><br />
+<a href = "/puzzle/{{nextPuzzle}}" ><button class = "menuButton">Next</button></a>
+{{/if}}
+
+<div id = "commentBox" style = "width: 30%; box-shadow: none; position: absolute; top: 10px;">
+<button onclick = "showSolution();" onmouseout = "restartPuzzle();" >show solution</button>
+<button onclick = "restartPuzzle();" >restart puzzle</button>
+<h1 id = "comment" style = "color: black; text-shadow: 0 0;">{{description}}</h2>
+</div>
+<div id = "board" style = "position: absolute; top: 20px; left: 30%; width: 400px; height: 400px; background-color: gray; border-color: black; border-style: solid;">
+</div>
+
+</div>
+
+<script type = "text/javascript" src = "../javascripts/partical.js"></script>
+<script type = "text/javascript" src = "../javascripts/board.js"></script>
+
+
+<script type = "text/javascript">
+
+	if ({{nextPuzzle}} == 4 ) {
+		var img = document.createElement("IMG");
+		img.src = "../images/buttons/whatsacore.bmp";
+		var commentBox = document.getElementById("commentBox");
+		commentBox.appendChild(img);
+	}
+
+	var firstSelect = "";
+	var secondSelect = "";
+	var skin = "pearl";
+	var description = "{{description}}";
+	var endComment = "{{endComment}}";
+	var solution = "{{solution}}";
+	var correctSelect = solution.split("-&gt;");
+	var correctFirstSelect = correctSelect[0];
+	var correctSecondSelect = correctSelect[1];
+	board.height = 380;
+	var position = "{{position}}";
+	
+	//var position = "n=8,0x4=n0dr,1x4=n0dl,2x5=n0dl,5x5=n0dr,6x5=n0dl";
+	
+	position = position.replace(/&#x3D;/g,"=");
+	var positionArray = position.split(",");
+	
+	for(i=0;i<positionArray.length;i++) {
+		var regex = /n=./ ;
+		if (regex.test(positionArray[i])) {
+			var nSize = positionArray[i].split("=");
+			board.size = nSize[1];
+		}
+	}
+	
+	board.set();
+	board.setPosition(position);
+	
+	board.draw();
+	board.adjust();
+	
+	function showSolution () {
+		board.particals[correctFirstSelect].selected = "yes";
+		board.particals[correctSecondSelect].selected = "child";
+		board.adjust();
+	}
+	
+	function restartPuzzle() {
+		firstSelect = "";
+		secondSelect = "";
+		document.getElementById("comment").innerText = description;
+		board.set();
+		board.setPosition(position);
+		puzzleMaster.buildCreatures();
+		board.draw();
+		board.adjust();
+		
+		for (y=0;y<board.size;y++) {
+			for (x=0;x<board.size;x++) {
+				var index = x + "x" + y;
+				board.particals[index].picture.onclick = function () {
+					puzzleMaster.select(this.id);
+				};
+				board.particals[index].picture.ondragstart = function () {
+					puzzleMaster.select(this.id);
+					return false;
+				};
+			}
+		}
+	}
+	
+	adjustWindow();
+	document.body.onresize = function () {
+		adjustWindow();
+	};
+	function adjustWindow () {
+		var boardDiv = document.getElementById("board");
+		boardDiv.style.left = window.innerWidth * 0.5 - 250 + "px";
+		var commentBox = document.getElementById("commentBox");
+		commentBox.style.width = window.innerWidth * 0.5 - 200  - commentBox.style.left * 1 - 100 + "px";
+	}
+	
+	function checkSolved() {
+		if (firstSelect == correctFirstSelect && secondSelect == correctSecondSelect) {
+			document.getElementById("comment").innerText = endComment;
+		} else {
+			if (firstSelect != "" && secondSelect != "") {
+				document.getElementById("comment").innerText = "wrong.";
+				firstSelect = "";
+				secondSelect = "";
+			}
+		}
+	}
+</script>
+<script type = "text/javascript" src = "../javascripts/localPuzzleMaster.js"></script>
+<script type = "text/javascript">
+puzzleMaster.buildCreatures();
+board.adjust();
+</script>
