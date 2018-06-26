@@ -9,9 +9,9 @@ var blueClock = {
 	draw: function () {
 			var display = "";
 			if (blueClock.hours > 0) {
-				display = blueClock.hours;
+				display = blueClock.hours + " : ";
 			}
-			display = display + " " + blueClock.minuts + " " + blueClock.seconds;
+			display = display + blueClock.minuts + " : " + blueClock.seconds;
 			if (blueClock.minuts < 1) {
 				display = display + " " + blueClock.centiseconds;
 			}
@@ -56,9 +56,9 @@ var redClock = {
 	draw: function () {
 			var display = "";
 			if (redClock.hours > 0) {
-				display = redClock.hours;
+				display = redClock.hours + " : ";
 			}
-			display = display +  " " + redClock.minuts + " " + redClock.seconds;
+			display = display + redClock.minuts + " : " + redClock.seconds;
 			if (redClock.minuts < 1) {
 				display = display + " " + redClock.centiseconds;
 			}

@@ -108,6 +108,7 @@ var board = {
 					}
 				}
 				this.particals[index] = new partical(x ,y ,horizontal ,vertical ,partHeight ,partXpos ,partYpos ,selected);
+				this.particals[index].team = team;
 				}
 			}else{
 				this.size = 1 * particalAndOrientation[1];

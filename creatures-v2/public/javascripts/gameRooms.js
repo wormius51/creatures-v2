@@ -1,5 +1,6 @@
 var gameMaster = require('../../gameMaster/gameMaster');
 var userUpdate = require('../../routes/userUpdate');
+var user = require('../../routes/users');
 //constructor function for game rooms.
 function gameRoom(creator, creatorRating, boardSize, timeControll) {
 	this.creator = creator;
@@ -17,6 +18,7 @@ function gameRoom(creator, creatorRating, boardSize, timeControll) {
 	this.gameMaster = gameMaster();
 	this.gameMaster.timeControll = timeControll;
 	this.gameMaster.board.size = this.boardSize;
+	this.isAi = false;
 }
 
 var gameRooms = new Array();
@@ -30,22 +32,48 @@ function insert(creator, creatorRating, boardSize, timeControll) {
 	gameRooms.push(gr);
 	display.push(creator + " " + creatorRating + " " + boardSize + " " + timeControll + ",waiting," + counter);
 }
+
+//insert a new game room with ai as creator.
+function insertAi(creator, boardSize, timeControll, position) {
+	var creatorRating = 1200;
+	user.findOne({userName: creator}, function(err, doc) {
+		creatorRating = doc.rating;
+		console.log(creator + " was fond in the db, rating: " + creatorRating);
+		counter++;
+		var gr = new gameRoom(creator, creatorRating, boardSize, timeControll);
+		gr.isAi = true;
+		gr.gameMaster.position = position;
+		gameRooms.push(gr);
+		display.push(creator + " " + creatorRating + " " + boardSize + " " + timeControll + ",waiting," + counter);
+	});
+}
 //join the game.
 function join(visitor, visitorRating, index) {
 	var gr = gameRooms[index];
 	gr.visitor = visitor;
 	gr.visitorRating = visitorRating;
 	var r = Math.random() * 2;
+	if (gr.isAi) {
+		console.log("isAi = true");
+	}
 	if(r < 1) {
 		gr.bluePlayer = gr.creator;
 		gr.bluePlayerRating = gr.creatorRating;
 		gr.redPlayer = gr.visitor;
 		gr.redPlayerRating = gr.visitorRating;
+		if (gr.isAi) {
+			gr.gameMaster.blueAi = gr.creator;
+			console.log("blueAi = " + gr.creator);
+		}
 	}else{
 		gr.redPlayer = gr.creator;
 		gr.redPlayerRating = gr.creatorRating;
 		gr.bluePlayer = gr.visitor;
 		gr.bluePlayerRating = gr.visitorRating;
+		if (gr.isAi) {
+			gr.gameMaster.redAi = gr.creator;
+			console.log("redAi = " + gr.creator);
+		}
 	}
 	console.log(gr.bluePlayer + " " + gr.bluePlayerRating + " " + gr.redPlayer + " " + gr.redPlayerRating);
 	gr.gameMaster.set();
@@ -69,7 +97,14 @@ function end(index) {
 	gr.state = "done";
 	gr.endHandled = true;
 	//display[index] = gr.bluePlayer + " vs " + gr.redPlayer + ",done," + index;
-	display.splice(index,1);
+	var destindex = 0;
+	for (i=0;i<display.length;i++) {
+		if (display[i].match(",playing," + index)) {
+			destindex = i;
+			break;
+		}
+	}
+	display.splice(destindex,1);
 }
 
 function checkIfDone (index) {
@@ -90,9 +125,9 @@ function select(roomIndex, name, particalIndex) {
 	}
 	checkIfDone(roomIndex);
 }
-
 module.exports.select = select;
 module.exports.insert = insert;
+module.exports.insertAi = insertAi;
 module.exports.rooms = gameRooms;
 module.exports.display = display;
 module.exports.join = join;
