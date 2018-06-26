@@ -1,3 +1,4 @@
+var botMaster = require('./bots/botMaster');
 var boardFactory = require('./board');
 var clockFactory = require('./clock');
 
@@ -10,13 +11,13 @@ var gameMaster = {
 	counter: counter,
 	blueCreatures: blueCreatures = 0,
 	redCreatures: redCreatures = 0,
-	blueAi: blueAi = false,
-	redAi: redAi = false,
+	blueAi: blueAi = "",
+	redAi: redAi = "",
 	inSelection: inSelection = false,
 	isBlueTurn: isBlueTurn = true,
 	turnNumber: turnNumber = 0,
 	PGN: PGN = "",
-	position: position = new Array("n=14","2x1=ul","2x12=dl","11x1=ur","11x12=dr","1x1=ur","1x12=dr","12x1=ul","12x12=dl"),
+	position: position = "",
 	isComputing: false,
 	currentPosition: currentPosition = "",
 	changes: changes = "",
@@ -26,6 +27,7 @@ var gameMaster = {
 	redClock: clockFactory(),
 	result: "playing",
 	interval: interval = 0,
+	botInterval: botInterval  = 0,
 	timeControll: "0:12:0+0:3",
 	
 	//set the gameMaster.board. for two players.
@@ -37,7 +39,11 @@ var gameMaster = {
 		gameMaster.isBlueTurn = true;
 		
 		gameMaster.board.set();
-		gameMaster.setDefultPosition();
+		if (!gameMaster.position) {
+			gameMaster.setDefultPosition();
+		} else {
+			gameMaster.board.setPosition(gameMaster.position);
+		}
 		gameMaster.iboard.size = gameMaster.board.size;
 		gameMaster.iboard.set();
 		var timeAndIncrament = gameMaster.timeControll.split("+");
@@ -63,7 +69,11 @@ var gameMaster = {
 		gameMaster.updateAll();
 		gameMaster.isComputing = false;
 		gameMaster.interval = setInterval(gameMaster.checkTime, 100);
+		if (gameMaster.blueAi != "" || gameMaster.redAi != "") {
+			gameMaster.botInterval = setInterval(gameMaster.aiMove, 200);
+		}
 	},
+	
 	// adds a move to the pgn.
 	addPGN: function addPGN(index, selected) {
 		switch (selected) {
@@ -72,7 +82,9 @@ var gameMaster = {
 				this.secondSelect = "";
 			break;
 			case "no":
-				this.firstSelect = index;
+				if (!this.firstSelect) {
+					this.firstSelect = index;
+				}
 			break;
 			case "child":
 			if (this.firstSelect) {
@@ -82,6 +94,7 @@ var gameMaster = {
 				}else {
 					gameMaster.PGN = gameMaster.PGN + " , " + this.firstSelect + " -> " + this.secondSelect + "<br />";
 				}
+				this.firstSelect = "";
 			}
 		}
 		console.log(gameMaster.PGN);
@@ -91,16 +104,15 @@ var gameMaster = {
 		console.log("seting position");
 		var n = gameMaster.board.size;
 		gameMaster.board.setPosition([
-			(n / 2 - 5) + "x" + 1 + "=" + "ul",
-			(n / 2 - 5) + "x" + (n - 2) + "=" + "dl",
-			(n / 2 + 4) + "x" + 1 + "=" + "ur",
-			(n / 2 + 4) + "x" + (n - 2) + "=" + "dr",
-			(n / 2 - 6) + "x" + 1 + "=" + "ur",
-			(n / 2 - 6) + "x" + (n - 2) + "=" + "dr",
-			(n / 2 + 5) + "x" + 1 + "=" + "ul",
-			(n / 2 + 5) + "x" + (n - 2) + "=" + "dl"]
+			(n / 2 - 5) + "x" + 2 + "=" + "ul",
+			(n / 2 - 5) + "x" + (n - 3) + "=" + "dl",
+			(n / 2 + 4) + "x" + 2 + "=" + "ur",
+			(n / 2 + 4) + "x" + (n - 3) + "=" + "dr",
+			(n / 2 - 6) + "x" + 2 + "=" + "ur",
+			(n / 2 - 6) + "x" + (n - 3) + "=" + "dr",
+			(n / 2 + 5) + "x" + 2 + "=" + "ul",
+			(n / 2 + 5) + "x" + (n - 3) + "=" + "dl"]
 		);
-		//gameMaster.board.setPosition(gameMaster.position);
 	},
 	
 	checkTime: function () {
@@ -111,12 +123,14 @@ var gameMaster = {
 			clearInterval(gameMaster.interval);
 			gameMaster.redClock.stop();
 			console.log(gameMaster.result);
+			clearInterval(gameMaster.botInterval);
 		}
 		if (isRedTimeUp) {
 			gameMaster.result = "blue wins";
 			clearInterval(gameMaster.interval);
 			gameMaster.blueClock.stop();
 			console.log(gameMaster.result);
+			clearInterval(gameMaster.botInterval);
 		}
 	},
 	
@@ -137,6 +151,7 @@ var gameMaster = {
 		if (gameMaster.result != "playing") {
 			gameMaster.blueClock.stop();
 			gameMaster.redClock.stop();
+			clearInterval(gameMaster.botInterval);
 		}
 		console.log(gameMaster.result);
 	},
@@ -148,11 +163,12 @@ var gameMaster = {
 		}else {
 			gameMaster.result = "blue wins";
 		}
+		clearInterval(gameMaster.botInterval);
 		gameMaster.isComputing = false;
 	},
 	
 	getPosition: function() {
-		currentPosition = "";
+		gameMaster.currentPosition = "";
 		for (y=0;y<gameMaster.board.size;y++) {
 			for (x=0;x<gameMaster.board.size;x++) {
 				var index = x + "x" + y;
@@ -202,6 +218,35 @@ var gameMaster = {
 				gameMaster.currentPosition = gameMaster.currentPosition + index + "=" + s + t + v + h + ",";
 			}
 		}
+	},
+	
+	checkDraw: function () {
+		gameMaster.isComputing = true;
+		if (!this.repeteCount) {
+			this.repeteCount = 0;
+		}
+		if (!this.previosPosition){
+			this.previosPosition = "";
+		}
+		if (!this.prepreviosPosition) {
+			this.prepreviosPosition = "";
+		}
+		if (gameMaster.changes == this.prepreviosPosition) {
+			this.repeteCount++;
+		} else {
+			this.repeteCount = 0;
+		}
+		if (this.repeteCount > 2) {
+			gameMaster.result = "draw";
+			if (gameMaster.result != "playing") {
+				gameMaster.blueClock.stop();
+				gameMaster.redClock.stop();
+			}
+			console.log(gameMaster.result);
+		}
+		this.prepreviosPosition = this.previosPosition;
+		this.previosPosition = gameMaster.changes;
+		gameMaster.isComputing = false;
 	},
 	
 	updateChanges: function updateChanges(index) {
@@ -267,7 +312,7 @@ var gameMaster = {
 	
 	//selects a partical that was clicked.
 	select: function select(index) {
-		if (gameMaster.result == "playing") {
+		if (gameMaster.result == "playing" && gameMaster.board.particals[index]) {
 			gameMaster.isComputing = true;
 			console.log("select at gameMaster: " + gameMaster.counter);
 			var xselect = gameMaster.board.particals[index].x;
@@ -281,7 +326,7 @@ var gameMaster = {
 						for (x=0;x<gameMaster.board.size;x++){
 							var index = x + "x" + y;
 							gameMaster.board.particals[index].selected = "no";
-							//gameMaster.updateChanges(index);
+							
 						}
 					}
 				}else{
@@ -291,11 +336,13 @@ var gameMaster = {
 							gameMaster.blueClock.stop();
 							gameMaster.redClock.start();
 							gameMaster.isBlueTurn = false;
+							console.log("red turn");
 						}else{
 							gameMaster.redClock.stop();
 							gameMaster.blueClock.start();
 							gameMaster.isBlueTurn = true;
 							gameMaster.turnNumber++;
+							console.log("blue turn");
 						}
 						for (y=0;y<gameMaster.board.size;y++){
 							for (x=0;x<gameMaster.board.size;x++){
@@ -317,7 +364,7 @@ var gameMaster = {
 													gameMaster.iboard.particals[indexcopy].selected = "child";
 												}
 												gameMaster.board.particals[indexchild].selected = "no";
-												//gameMaster.updateChanges(indexchild);
+												
 											}
 										}
 									}
@@ -328,7 +375,7 @@ var gameMaster = {
 											if (gameMaster.iboard.particals[index].selected == "child"){
 												gameMaster.board.particals[index].horizontal = gameMaster.iboard.particals[index].horizontal;
 												gameMaster.board.particals[index].vertical = gameMaster.iboard.particals[index].vertical;
-												//gameMaster.updateChanges(indexchild);
+												
 												gameMaster.iboard.particals[index].selected = "no";
 											}
 										}
@@ -338,19 +385,19 @@ var gameMaster = {
 							}
 						}
 						gameMaster.buildCreatures();
-						
+						gameMaster.checkDraw();
 						console.log("turnNumber: " + gameMaster.turnNumber);
 						console.log("gameMaster.board. number: " + gameMaster.board.counter);
+						
 					}else{
 						if (!gameMaster.inSelection) {
 							gameMaster.board.particals[index].selected = "yes";
-							//gameMaster.updateChanges(index);
+							
 							gameMaster.inSelection = true;
 							
 							gameMaster.lightCreature(xselect,yselect,"vertical");
 							gameMaster.lightCreature(xselect,yselect,"horizontal");
 						}
-						
 					}
 					
 				}
@@ -367,6 +414,7 @@ var gameMaster = {
 			gameMaster.isComputing = false;
 			gameMaster.checkEnd();
 		}
+		
 	},
 	
 	//builds creatures when cores detected.
@@ -538,6 +586,44 @@ var gameMaster = {
 			}
 		}
 	},
+	
+	aiMove: function () {
+		gameMaster.isComputing = true;
+		console.log("ai check if move");
+		if (gameMaster.blueAi != "") {
+			gameMaster.getPosition();
+			var answer = botMaster(gameMaster.blueAi, gameMaster.currentPosition, gameMaster.isBlueTurn, true);
+			console.log("bot answer: " + answer);
+			if (answer != "not my turn") {
+				gameMaster.select(answer);
+			}
+		}
+		if (gameMaster.redAi != "") {
+			gameMaster.getPosition();
+			var answer = botMaster(gameMaster.redAi, gameMaster.currentPosition, gameMaster.isBlueTurn, false);
+			console.log("bot answer: " + answer);
+			if (answer != "not my turn") {
+				gameMaster.select(answer);
+			}
+		}
+		gameMaster.isComputing = false;
+	}
 };
+console.log("blueAi: " + gameMaster.blueAi);
+console.log("redAi: " + gameMaster.redAi);
+//gameMaster.aiMove();
 return gameMaster;
 };
+
+/*if (gameMaster.blueAi != "" && isBlueTurn) {
+							gameMaster.getPosition();
+							var answer = botMaster(gameMaster.blueAi, gameMaster.currentPosition, gameMaster.isBlueTurn, true);
+							console.log("bot answer: " + answer);
+							gameMaster.select(answer);
+						}
+						if (gameMaster.redAi != "" && !isBlueTurn) {
+							gameMaster.getPosition();
+							var answer = botMaster(gameMaster.redAi, gameMaster.currentPosition, gameMaster.isBlueTurn, false);
+							console.log("bot answer: " + answer);
+							gameMaster.select(answer);
+						}*/
