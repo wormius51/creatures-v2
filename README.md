@@ -1,3 +1,3 @@
 # creatures-v2
 
-the node_modules directory deasnt have all the modules becouse it wouldnt load that many files.
+A node.js app for an online abstract strategy game.
